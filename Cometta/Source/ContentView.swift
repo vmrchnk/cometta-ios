@@ -10,7 +10,6 @@ import Core
 
 struct ContentView: View {
     @Environment(\.theme) var theme
-    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         VStack(spacing: 24) {
@@ -18,11 +17,12 @@ struct ContentView: View {
                 .imageScale(.large)
                 .foregroundStyle(theme.colors.primary)
 
-            Text("Hello, Cometta!")
+            // Просто і зрозуміло - без bundle параметра!
+            Text("hello_world")
                 .font(theme.typography.headlineLarge)
                 .foregroundStyle(theme.colors.onBackground)
 
-            Text("Theme system is ready")
+            Text("theme_ready")
                 .font(theme.typography.bodyMedium)
                 .foregroundStyle(theme.colors.onSurface.opacity(0.7))
 

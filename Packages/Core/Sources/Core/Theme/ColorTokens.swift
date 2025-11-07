@@ -64,18 +64,18 @@ public struct ColorTokens: Sendable {
 
 // MARK: - Predefined Themes
 extension ColorTokens {
-    // Використовуємо кольори з Asset Catalog, які автоматично підтримують Dark/Light mode
+    // Використовуємо кольори з Asset Catalog app bundle, які автоматично підтримують Dark/Light mode
     public static let `default` = ColorTokens(
-        primary: Color("Colors/Primary", bundle: .module),
+        primary: Color("Colors/Primary"),
         primaryVariant: Color(red: 0.20, green: 0.31, blue: 0.85), // #334FD9
-        secondary: Color("Colors/Secondary", bundle: .module),
+        secondary: Color("Colors/Secondary"),
         secondaryVariant: Color(red: 0.85, green: 0.31, blue: 0.49),// #D94F7D
-        background: Color("Colors/Background", bundle: .module),
+        background: Color("Colors/Background"),
         surface: Color.white,
         onPrimary: Color.white,
         onSecondary: Color.white,
-        onBackground: Color("Colors/TextPrimary", bundle: .module),
-        onSurface: Color("Colors/TextPrimary", bundle: .module),
+        onBackground: Color("Colors/TextPrimary"),
+        onSurface: Color("Colors/TextPrimary"),
         error: Color(red: 0.96, green: 0.26, blue: 0.21),          // #F54336
         success: Color(red: 0.30, green: 0.69, blue: 0.31),        // #4DB04F
         warning: Color(red: 1.00, green: 0.60, blue: 0.00)         // #FF9900
