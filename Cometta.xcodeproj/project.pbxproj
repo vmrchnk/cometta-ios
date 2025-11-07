@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D53C13332EBE7B730075C09B /* Features in Frameworks */ = {isa = PBXBuildFile; productRef = D53C13322EBE7B730075C09B /* Features */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		D5CCDE842EBE770B005BBD65 /* Cometta.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cometta.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D53C13332EBE7B730075C09B /* Features in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = Cometta;
 			packageProductDependencies = (
+				D53C13322EBE7B730075C09B /* Features */,
 			);
 			productName = Cometta;
 			productReference = D5CCDE842EBE770B005BBD65 /* Cometta.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = D5CCDE7B2EBE770B005BBD65;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D53C13312EBE7B730075C09B /* XCLocalSwiftPackageReference "Packages/Features" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D5CCDE852EBE770B005BBD65 /* Products */;
 			projectDirPath = "";
@@ -332,6 +341,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		D53C13312EBE7B730075C09B /* XCLocalSwiftPackageReference "Packages/Features" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/Features;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D53C13322EBE7B730075C09B /* Features */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Features;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D5CCDE7C2EBE770B005BBD65 /* Project object */;
 }
