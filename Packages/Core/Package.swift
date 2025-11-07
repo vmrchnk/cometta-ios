@@ -4,20 +4,26 @@
 import PackageDescription
 
 let package = Package(
-    name: "Features",
+    name: "Core",
     platforms: [
         .iOS(.v17)
     ],
     products: [
         .library(
-            name: "Features",
-            targets: ["Features"]
+            name: "Core",
+            targets: ["Core"]
         ),
     ],
     targets: [
         .target(
-            name: "Features",
-            dependencies: []
+            name: "Core",
+            resources: [
+                .process("Resources")
+            ]
+        ),
+        .testTarget(
+            name: "CoreTests",
+            dependencies: ["Core"]
         ),
     ]
 )

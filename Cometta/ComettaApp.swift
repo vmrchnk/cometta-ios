@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import Core
 
 @main
 struct ComettaApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .theme(.dark)
         }
     }
 }
