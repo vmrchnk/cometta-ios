@@ -6,14 +6,21 @@
 //
 
 import SwiftUI
-import Core
 
 @main
 struct ComettaApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .theme(.dark)
+            RootView()
         }
+    }
+}
+
+struct RootView: View {
+    @Environment(\.colorScheme) var colorScheme
+
+    var body: some View {
+        RootCoordinatorView()
+            .theme(colorScheme == .dark ? .dark : .light)
     }
 }
