@@ -46,6 +46,19 @@ struct HomeCoordinatorView: View {
     // MARK: - View Builder
     @ViewBuilder
     func build(screen: HomeScreen) -> some View {
+//        switch screen {
+//        case .home:
+//            ModuleBuilder.build(.home(onAction: handleHomeAction))
+//
+//        case .profile:
+//            ModuleBuilder.build(.profile)
+//
+//        case .settings:
+//            ModuleBuilder.build(.settings)
+//
+//        case .detail(let id):
+//            ModuleBuilder.build(.detail(id: id))
+//        }
         EmptyView()
     }
 

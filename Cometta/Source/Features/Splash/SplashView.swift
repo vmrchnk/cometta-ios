@@ -5,37 +5,35 @@
 //  Created on 07.11.2025.
 //
 
+import Lottie
 import SwiftUI
 
 struct SplashView: View {
     @Environment(\.theme) var theme
-    let onComplete: () -> Void
-
+    
     var body: some View {
         ZStack {
-            theme.colors.primary
+            theme.colors.background
                 .ignoresSafeArea()
-
-            VStack(spacing: 24) {
-                // Logo/Icon
-                Image(systemName: "star.fill")
-                    .font(.system(size: 80))
-                    .foregroundStyle(theme.colors.onPrimary)
-
+            VStack {
+                Spacer()
                 Text("Cometta")
-                    .font(.largeTitle.bold())
-                    .foregroundStyle(theme.colors.onPrimary)
+                    .font(.title)
+                    .fontWeight(.thin)
+                    .foregroundStyle(
+                        theme.colors.onBackground
+                    )
             }
         }
     }
 }
 
 #Preview("Light") {
-    SplashView(onComplete: {})
-        .theme(.light)
+    SplashView()
+        .theme(.default)
 }
 
 #Preview("Dark") {
-    SplashView(onComplete: {})
-        .theme(.dark)
+    SplashView()
+        .theme(.default)
 }

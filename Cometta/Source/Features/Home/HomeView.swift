@@ -90,7 +90,7 @@ struct HomeView: View {
             }
         ))
     }
-    .theme(.light)
+    .theme(.default)
     .preferredColorScheme(.light)
 }
 
@@ -102,6 +102,6 @@ struct HomeView: View {
             }
         ))
     }
-    .theme(.dark)
+    .theme(.default)
     .preferredColorScheme(.dark)
 }

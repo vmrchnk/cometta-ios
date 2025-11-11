@@ -9,25 +9,20 @@ import SwiftUI
 
 struct RootCoordinatorView: View {
     @State private var coordinator = Coordinator<RootScreen>()
-    @State private var currentScreen: RootScreen = .splash
+    @State private var currentScreen: RootScreen = .onboarding
 
     var body: some View {
         build(screen: currentScreen)
-            .task {
-                // Initial delay then check onboarding
-                try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
-                completeSplash()
-            }
     }
 
     @ViewBuilder
     func build(screen: RootScreen) -> some View {
         switch screen {
         case .splash:
-            EmptyView()
+            SplashView()
 
         case .onboarding:
-            EmptyView()
+            OnboardingView(onComplete: {})
         case .main:
             HomeCoordinatorView()
         }

@@ -21,6 +21,6 @@ struct RootView: View {
 
     var body: some View {
         RootCoordinatorView()
-            .theme(colorScheme == .dark ? .dark : .light)
+            .theme(.default)
     }
 }

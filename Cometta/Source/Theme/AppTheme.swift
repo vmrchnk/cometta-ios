@@ -14,13 +14,12 @@ struct AppTheme: Sendable {
         self.colors = colors
     }
 
-    static let light = AppTheme(colors: .light)
-    static let dark = AppTheme(colors: .dark)
+    static let `default` = AppTheme(colors: .default)
 }
 
 // MARK: - Environment Key
 private struct ThemeKey: EnvironmentKey {
-    static let defaultValue = AppTheme.light
+    static let defaultValue = AppTheme.default
 }
 
 extension EnvironmentValues {
