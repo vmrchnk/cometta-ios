@@ -67,10 +67,11 @@ struct OnboardingView: View {
 
                 // Pages
                 TabView(selection: $currentPage) {
-                    ForEach(pages.indices, id: \.self) { index in
-                        OnboardingPageView(page: pages[index])
-                            .tag(index)
-                    }
+                    FirstPage()
+//                    ForEach(pages.indices, id: \.self) { index in
+//                        OnboardingPageView(page: pages[index])
+//                            .tag(index)
+//                    }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
 
