@@ -68,6 +68,11 @@ struct OnboardingView: View {
                 // Pages
                 TabView(selection: $currentPage) {
                     FirstPage()
+                        .tag(0)
+
+                    SecondPage()
+                        .tag(1)
+
 //                    ForEach(pages.indices, id: \.self) { index in
 //                        OnboardingPageView(page: pages[index])
 //                            .tag(index)
