@@ -98,9 +98,15 @@ struct OnboardingView: View {
                     } else {
                         // Last page - submit data
                         Task {
+                            print("🚀 Starting personalization submission")
                             await viewModel.submitPersonalization()
-                            if let response = viewModel.personalizationResponse {
-                                onComplete(response)
+                            await MainActor.run {
+                                if let response = viewModel.personalizationResponse {
+                                    print("✅ Got response, calling onComplete with ID: \(response.id)")
+                                    onComplete(response)
+                                } else {
+                                    print("❌ No response received")
+                                }
                             }
                         }
                     }

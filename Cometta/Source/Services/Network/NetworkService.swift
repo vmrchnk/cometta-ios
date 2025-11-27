@@ -31,10 +31,14 @@ class NetworkService {
     // MARK: - Generic Request Method
     private func request<T: Decodable>(
         endpoint: APIEndpoint,
+        queryItems: [URLQueryItem]? = nil,
         body: Encodable? = nil
     ) async throws -> T {
         // Build URL
-        guard let url = URL(string: baseURL + endpoint.path) else {
+        var components = URLComponents(string: baseURL + endpoint.path)
+        components?.queryItems = queryItems
+
+        guard let url = components?.url else {
             throw NetworkError.invalidURL
         }
 
@@ -149,5 +153,27 @@ class NetworkService {
 
         // Send request
         return try await request(endpoint: .personalization, body: requestBody)
+    }
+
+    /// Get daily horoscope for user
+    func getDailyHoroscope(
+        userId: String,
+        date: String? = nil,
+        timezone: String? = nil
+    ) async throws -> DailyHoroscopeResponse {
+        var queryItems = [URLQueryItem(name: "user_id", value: userId)]
+
+        if let date = date {
+            queryItems.append(URLQueryItem(name: "date", value: date))
+        }
+
+        if let timezone = timezone {
+            queryItems.append(URLQueryItem(name: "X-Timezone", value: timezone))
+        }
+
+        return try await request(
+            endpoint: .dailyHoroscope(userId: userId, date: date),
+            queryItems: queryItems
+        )
     }
 }

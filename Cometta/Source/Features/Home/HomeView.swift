@@ -10,6 +10,7 @@ import SwiftUI
 struct HomeView: View {
     @Environment(\.theme) var theme
     let params: Params
+    @State private var viewModel = HomeViewModel()
 
     // MARK: - Params with Action-based approach
     struct Params {
@@ -24,61 +25,88 @@ struct HomeView: View {
     }
 
     var body: some View {
-        VStack(spacing: 24) {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(theme.colors.primary)
-
-            Text("hello_world")
-                .font(.largeTitle)
-                .foregroundStyle(theme.colors.onBackground)
-
-            Text("theme_ready")
-                .font(.body)
-                .foregroundStyle(theme.colors.onSurface.opacity(0.7))
-
-            // Color palette preview
-            HStack(spacing: 12) {
-                Circle()
-                    .fill(theme.colors.primary)
-                    .frame(width: 40, height: 40)
-
-                Circle()
-                    .fill(theme.colors.secondary)
-                    .frame(width: 40, height: 40)
-
-                Circle()
-                    .fill(theme.colors.success)
-                    .frame(width: 40, height: 40)
-
-                Circle()
-                    .fill(theme.colors.warning)
-                    .frame(width: 40, height: 40)
+        Group {
+            if viewModel.isLoading {
+                LoadingView(theme: theme)
+            } else if let errorMessage = viewModel.errorMessage {
+                ErrorView(message: errorMessage, theme: theme) {
+                    Task {
+                        await viewModel.loadDailyHoroscope()
+                    }
+                }
+            } else if let horoscope = viewModel.horoscope {
+                DailyHoroscopeView(horoscope: horoscope)
+            } else {
+                EmptyStateView(theme: theme)
             }
-
-            // Navigation examples
-            VStack(spacing: 16) {
-                Button("Push to Profile") {
-                    params.onAction(.profileTapped)
-                }
-                .buttonStyle(.borderedProminent)
-
-                Button("Show Settings as Sheet") {
-                    params.onAction(.settingsTapped)
-                }
-                .buttonStyle(.bordered)
-
-                Button("Push to Detail") {
-                    params.onAction(.detailTapped(id: "123"))
-                }
-                .buttonStyle(.bordered)
-            }
-            .padding(.top, 20)
         }
-        .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(theme.colors.background)
-        .navigationTitle("Home")
+        .navigationTitle("Daily Horoscope")
+        .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await viewModel.loadDailyHoroscope()
+        }
+    }
+}
+
+// MARK: - Loading View
+struct LoadingView: View {
+    let theme: AppTheme
+
+    var body: some View {
+        VStack(spacing: 20) {
+            ProgressView()
+                .tint(theme.colors.primary)
+                .scaleEffect(1.5)
+
+            Text("Loading your horoscope...")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(theme.colors.onSurface.opacity(0.6))
+        }
+    }
+}
+
+// MARK: - Error View
+struct ErrorView: View {
+    let message: String
+    let theme: AppTheme
+    let onRetry: () -> Void
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 60))
+                .foregroundStyle(theme.colors.onSurface.opacity(0.3))
+
+            Text(message)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(theme.colors.onSurface.opacity(0.7))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+
+            Button("Try Again") {
+                onRetry()
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+}
+
+// MARK: - Empty State View
+struct EmptyStateView: View {
+    let theme: AppTheme
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "star.circle")
+                .font(.system(size: 60))
+                .foregroundStyle(theme.colors.primary.opacity(0.5))
+
+            Text("No horoscope available")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(theme.colors.onSurface.opacity(0.6))
+        }
     }
 }
 

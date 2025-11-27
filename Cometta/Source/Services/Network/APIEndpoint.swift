@@ -3,11 +3,14 @@ import Foundation
 // MARK: - API Endpoint
 enum APIEndpoint {
     case personalization
+    case dailyHoroscope(userId: String, date: String?)
 
     var path: String {
         switch self {
         case .personalization:
             return "/api/v1/user/personalization"
+        case .dailyHoroscope:
+            return "/api/v1/daily-horoscope"
         }
     }
 
@@ -15,6 +18,8 @@ enum APIEndpoint {
         switch self {
         case .personalization:
             return .post
+        case .dailyHoroscope:
+            return .get
         }
     }
 }
