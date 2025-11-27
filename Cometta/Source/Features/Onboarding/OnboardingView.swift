@@ -76,6 +76,9 @@ struct OnboardingView: View {
                     ThirdPage()
                         .tag(2)
 
+                    FourthPage()
+                        .tag(3)
+
 //                    ForEach(pages.indices, id: \.self) { index in
 //                        OnboardingPageView(page: pages[index])
 //                            .tag(index)
