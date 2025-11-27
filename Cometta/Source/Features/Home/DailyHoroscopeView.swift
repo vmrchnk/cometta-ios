@@ -6,6 +6,7 @@ struct DailyHoroscopeView: View {
 
     @State private var selectedTab: LifeArea = .overall
     @State private var scrollOffset: CGFloat = 0
+    @State private var isUserScrolling = false
 
     enum LifeArea: String, CaseIterable {
         case overall = "Overall"
@@ -56,7 +57,7 @@ struct DailyHoroscopeView: View {
 
             ScrollViewReader { proxy in
                 ScrollView {
-                    VStack(spacing: 32) {
+                    LazyVStack(spacing: 0, pinnedViews: []) {
                         // Overall section
                         VStack(spacing: 20) {
                             Text(horoscope.overall.headline)
@@ -73,49 +74,100 @@ struct DailyHoroscopeView: View {
                         }
                         .padding(.horizontal, 24)
                         .padding(.top, 20)
-                        .id(LifeArea.overall)
+                        .padding(.bottom, 32)
+                        .background(
+                            GeometryReader { geo in
+                                Color.clear.preference(
+                                    key: VisibleSectionPreferenceKey.self,
+                                    value: geo.frame(in: .named("scroll")).minY < 200 ? 0 : nil
+                                )
+                            }
+                        )
+                        .id(0)
 
                         // Dominant themes
                         ThemesView(themes: horoscope.dominantThemes, theme: theme)
+                            .padding(.bottom, 32)
 
                         Divider()
                             .padding(.horizontal, 24)
+                            .padding(.bottom, 32)
 
-                        // Life areas
-                        VStack(spacing: 24) {
-                            AreaCardView(
-                                icon: "heart.fill",
-                                title: "Relationships",
-                                area: horoscope.areas.relationships,
-                                theme: theme
-                            )
-                            .id(LifeArea.relationships)
-
-                            AreaCardView(
-                                icon: "briefcase.fill",
-                                title: "Work",
-                                area: horoscope.areas.work,
-                                theme: theme
-                            )
-                            .id(LifeArea.work)
-
-                            AreaCardView(
-                                icon: "bolt.fill",
-                                title: "Energy",
-                                area: horoscope.areas.energy,
-                                theme: theme
-                            )
-                            .id(LifeArea.energy)
-
-                            AreaCardView(
-                                icon: "message.fill",
-                                title: "Communication",
-                                area: horoscope.areas.communication,
-                                theme: theme
-                            )
-                            .id(LifeArea.communication)
-                        }
+                        // Relationships
+                        AreaCardView(
+                            icon: "heart.fill",
+                            title: "Relationships",
+                            area: horoscope.areas.relationships,
+                            theme: theme
+                        )
                         .padding(.horizontal, 24)
+                        .padding(.bottom, 24)
+                        .background(
+                            GeometryReader { geo in
+                                Color.clear.preference(
+                                    key: VisibleSectionPreferenceKey.self,
+                                    value: geo.frame(in: .named("scroll")).minY < 200 ? 1 : nil
+                                )
+                            }
+                        )
+                        .id(1)
+
+                        // Work
+                        AreaCardView(
+                            icon: "briefcase.fill",
+                            title: "Work",
+                            area: horoscope.areas.work,
+                            theme: theme
+                        )
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 24)
+                        .background(
+                            GeometryReader { geo in
+                                Color.clear.preference(
+                                    key: VisibleSectionPreferenceKey.self,
+                                    value: geo.frame(in: .named("scroll")).minY < 200 ? 2 : nil
+                                )
+                            }
+                        )
+                        .id(2)
+
+                        // Energy
+                        AreaCardView(
+                            icon: "bolt.fill",
+                            title: "Energy",
+                            area: horoscope.areas.energy,
+                            theme: theme
+                        )
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 24)
+                        .background(
+                            GeometryReader { geo in
+                                Color.clear.preference(
+                                    key: VisibleSectionPreferenceKey.self,
+                                    value: geo.frame(in: .named("scroll")).minY < 200 ? 3 : nil
+                                )
+                            }
+                        )
+                        .id(3)
+
+                        // Communication
+                        AreaCardView(
+                            icon: "message.fill",
+                            title: "Communication",
+                            area: horoscope.areas.communication,
+                            theme: theme
+                        )
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 24)
+                        .background(
+                            GeometryReader { geo in
+                                Color.clear.preference(
+                                    key: VisibleSectionPreferenceKey.self,
+                                    value: geo.frame(in: .named("scroll")).minY < 200 ? 4 : nil
+                                )
+                            }
+                        )
+                        .id(4)
 
                         // Footer
                         Text("Generated at \(formattedTime(horoscope.meta.generatedAt))")
@@ -124,9 +176,26 @@ struct DailyHoroscopeView: View {
                             .padding(.bottom, 40)
                     }
                 }
+                .coordinateSpace(name: "scroll")
+                .onPreferenceChange(VisibleSectionPreferenceKey.self) { visibleIndex in
+                    if !isUserScrolling, let index = visibleIndex {
+                        selectedTab = LifeArea.allCases[index]
+                    }
+                }
+                .simultaneousGesture(
+                    DragGesture()
+                        .onChanged { _ in
+                            isUserScrolling = true
+                        }
+                        .onEnded { _ in
+                            isUserScrolling = false
+                        }
+                )
                 .onChange(of: selectedTab) { _, newTab in
-                    withAnimation {
-                        proxy.scrollTo(newTab, anchor: .top)
+                    if let index = LifeArea.allCases.firstIndex(of: newTab) {
+                        withAnimation {
+                            proxy.scrollTo(index, anchor: .top)
+                        }
                     }
                 }
             }
@@ -150,6 +219,16 @@ struct DailyHoroscopeView: View {
         let timeFormatter = DateFormatter()
         timeFormatter.timeStyle = .short
         return timeFormatter.string(from: date)
+    }
+
+}
+
+// MARK: - Preference Key
+struct VisibleSectionPreferenceKey: PreferenceKey {
+    static var defaultValue: Int?
+
+    static func reduce(value: inout Int?, nextValue: () -> Int?) {
+        value = nextValue() ?? value
     }
 }
 
