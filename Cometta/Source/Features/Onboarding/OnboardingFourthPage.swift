@@ -3,11 +3,13 @@ import SwiftUI
 extension OnboardingView {
     struct FourthPage: View {
         @Environment(\.theme) var theme
+        @Binding var currentPage: Int
         @State private var searchText = ""
         @State private var searchResults: [Location] = []
         @State private var selectedLocation: Location?
         @State private var isSearching = false
         @State private var searchTask: Task<Void, Never>?
+        @FocusState private var isTextFieldFocused: Bool
 
         private let locationService = LocationSearchService()
 
@@ -40,6 +42,7 @@ extension OnboardingView {
                             .foregroundStyle(theme.colors.onBackground)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.words)
+                            .focused($isTextFieldFocused)
                             .onChange(of: searchText) { _, newValue in
                                 handleSearchTextChange(newValue)
                             }
@@ -124,6 +127,23 @@ extension OnboardingView {
             }
             .animation(.spring(response: 0.4, dampingFraction: 0.7), value: searchResults.isEmpty)
             .animation(.spring(response: 0.4, dampingFraction: 0.7), value: selectedLocation)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                isTextFieldFocused = false
+            }
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    isTextFieldFocused = true
+                }
+            }
+            .onDisappear {
+                isTextFieldFocused = false
+            }
+            .onChange(of: currentPage) { _, newPage in
+                if newPage != 3 {
+                    isTextFieldFocused = false
+                }
+            }
         }
 
         private func handleSearchTextChange(_ newValue: String) {
@@ -276,13 +296,13 @@ struct LocationResultRow: View {
 
 // MARK: - Previews
 #Preview("Light") {
-    OnboardingView.FourthPage()
+    OnboardingView.FourthPage(currentPage: .constant(1))
         .theme(.default)
         .preferredColorScheme(.light)
 }
 
 #Preview("Dark") {
-    OnboardingView.FourthPage()
+    OnboardingView.FourthPage(currentPage: .constant(1))
         .theme(.default)
         .preferredColorScheme(.dark)
 }

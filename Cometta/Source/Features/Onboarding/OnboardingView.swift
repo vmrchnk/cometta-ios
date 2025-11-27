@@ -76,7 +76,7 @@ struct OnboardingView: View {
                     ThirdPage()
                         .tag(2)
 
-                    FourthPage()
+                    FourthPage(currentPage: $currentPage)
                         .tag(3)
 
 //                    ForEach(pages.indices, id: \.self) { index in

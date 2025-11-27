@@ -35,6 +35,7 @@ extension OnboardingView {
                     zodiacSigns: zodiacSigns,
                     selectedIndex: $selectedZodiacIndex
                 )
+                .foregroundStyle(theme.colors.onBackground)
                 .frame(height: 200)
 
                 // Description
