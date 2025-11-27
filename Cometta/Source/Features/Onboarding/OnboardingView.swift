@@ -100,7 +100,7 @@ struct OnboardingView: View {
                 } label: {
                     Text("Continue")
                         .font(.system(size: 18, weight: .semibold))
-                        
+
                         .frame(maxWidth: .infinity)
 //                        .background(
 //                            RoundedRectangle(cornerRadius: 16)
@@ -108,6 +108,7 @@ struct OnboardingView: View {
 //                        )
                 }
                 .buttonStyle(MyButtonStyle(isLoading: false))
+                .sensoryFeedback(.impact(weight: .medium, intensity: 0.8), trigger: currentPage)
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
             }
