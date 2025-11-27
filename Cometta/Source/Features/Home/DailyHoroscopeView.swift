@@ -4,97 +4,131 @@ struct DailyHoroscopeView: View {
     @Environment(\.theme) var theme
     let horoscope: DailyHoroscopeResponse
 
+    @State private var selectedTab: LifeArea = .overall
+    @State private var scrollOffset: CGFloat = 0
+
+    enum LifeArea: String, CaseIterable {
+        case overall = "Overall"
+        case relationships = "Relationships"
+        case work = "Work"
+        case energy = "Energy"
+        case communication = "Communication"
+    }
+
     var body: some View {
-        ScrollView {
-            VStack(spacing: 32) {
-                // Header with zodiac sign
-                VStack(spacing: 12) {
-                    Text(horoscope.zodiacSign.uppercased())
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .tracking(2)
-                        .foregroundStyle(theme.colors.primary.opacity(0.8))
+        VStack(spacing: 0) {
+            // Header with zodiac sign
+            VStack(spacing: 12) {
+                Text(horoscope.zodiacSign.uppercased())
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .tracking(2)
+                    .foregroundStyle(theme.colors.primary.opacity(0.8))
 
-                    Text(formattedDate(horoscope.date))
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(theme.colors.onSurface.opacity(0.6))
-                }
-                .padding(.top, 20)
+                Text(formattedDate(horoscope.date))
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(theme.colors.onSurface.opacity(0.6))
+            }
+            .padding(.top, 20)
+            .padding(.bottom, 16)
+            .background(theme.colors.background)
 
-                // Overall section
-                VStack(spacing: 20) {
-                    Text(horoscope.overall.headline)
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundStyle(theme.colors.onBackground)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
-
-                    Text(horoscope.overall.summary)
-                        .font(.system(size: 16, weight: .regular))
-                        .foregroundStyle(theme.colors.onSurface.opacity(0.8))
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(6)
-                }
-                .padding(.horizontal, 24)
-
-                // Dominant themes
-                ThemesView(themes: horoscope.dominantThemes, theme: theme)
-
-                Divider()
-                    .padding(.horizontal, 24)
-
-                // Life areas
-                VStack(spacing: 24) {
-                    AreaCardView(
-                        icon: "heart.fill",
-                        title: "Relationships",
-                        area: horoscope.areas.relationships,
-                        theme: theme
-                    )
-
-                    AreaCardView(
-                        icon: "briefcase.fill",
-                        title: "Work",
-                        area: horoscope.areas.work,
-                        theme: theme
-                    )
-
-                    AreaCardView(
-                        icon: "bolt.fill",
-                        title: "Energy",
-                        area: horoscope.areas.energy,
-                        theme: theme
-                    )
-
-                    AreaCardView(
-                        icon: "message.fill",
-                        title: "Communication",
-                        area: horoscope.areas.communication,
-                        theme: theme
-                    )
-                }
-                .padding(.horizontal, 24)
-
-                // Transits section
-                if !horoscope.transits.isEmpty {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Today's Transits")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(theme.colors.onBackground)
-
-                        VStack(spacing: 12) {
-                            ForEach(horoscope.transits) { transit in
-                                TransitRowView(transit: transit, theme: theme)
+            // Tabs
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(LifeArea.allCases, id: \.self) { area in
+                        TabButton(
+                            title: area.rawValue,
+                            isSelected: selectedTab == area,
+                            theme: theme
+                        ) {
+                            withAnimation {
+                                selectedTab = area
                             }
                         }
                     }
-                    .padding(.horizontal, 24)
                 }
+                .padding(.horizontal, 24)
+            }
+            .padding(.vertical, 12)
+            .background(theme.colors.background)
 
-                // Footer
-                Text("Generated at \(formattedTime(horoscope.meta.generatedAt))")
-                    .font(.system(size: 11, weight: .regular))
-                    .foregroundStyle(theme.colors.onSurface.opacity(0.4))
-                    .padding(.bottom, 40)
+            Divider()
+
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: 32) {
+                        // Overall section
+                        VStack(spacing: 20) {
+                            Text(horoscope.overall.headline)
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundStyle(theme.colors.onBackground)
+                                .multilineTextAlignment(.center)
+                                .lineSpacing(4)
+
+                            Text(horoscope.overall.summary)
+                                .font(.system(size: 16, weight: .regular))
+                                .foregroundStyle(theme.colors.onSurface.opacity(0.8))
+                                .multilineTextAlignment(.center)
+                                .lineSpacing(6)
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.top, 20)
+                        .id(LifeArea.overall)
+
+                        // Dominant themes
+                        ThemesView(themes: horoscope.dominantThemes, theme: theme)
+
+                        Divider()
+                            .padding(.horizontal, 24)
+
+                        // Life areas
+                        VStack(spacing: 24) {
+                            AreaCardView(
+                                icon: "heart.fill",
+                                title: "Relationships",
+                                area: horoscope.areas.relationships,
+                                theme: theme
+                            )
+                            .id(LifeArea.relationships)
+
+                            AreaCardView(
+                                icon: "briefcase.fill",
+                                title: "Work",
+                                area: horoscope.areas.work,
+                                theme: theme
+                            )
+                            .id(LifeArea.work)
+
+                            AreaCardView(
+                                icon: "bolt.fill",
+                                title: "Energy",
+                                area: horoscope.areas.energy,
+                                theme: theme
+                            )
+                            .id(LifeArea.energy)
+
+                            AreaCardView(
+                                icon: "message.fill",
+                                title: "Communication",
+                                area: horoscope.areas.communication,
+                                theme: theme
+                            )
+                            .id(LifeArea.communication)
+                        }
+                        .padding(.horizontal, 24)
+
+                        // Footer
+                        Text("Generated at \(formattedTime(horoscope.meta.generatedAt))")
+                            .font(.system(size: 11, weight: .regular))
+                            .foregroundStyle(theme.colors.onSurface.opacity(0.4))
+                            .padding(.bottom, 40)
+                    }
+                }
+                .onChange(of: selectedTab) { _, newTab in
+                    withAnimation {
+                        proxy.scrollTo(newTab, anchor: .top)
+                    }
+                }
             }
         }
         .background(theme.colors.background)
@@ -116,6 +150,33 @@ struct DailyHoroscopeView: View {
         let timeFormatter = DateFormatter()
         timeFormatter.timeStyle = .short
         return timeFormatter.string(from: date)
+    }
+}
+
+// MARK: - Tab Button
+struct TabButton: View {
+    let title: String
+    let isSelected: Bool
+    let theme: AppTheme
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 13, weight: isSelected ? .bold : .medium))
+                .foregroundStyle(isSelected ? theme.colors.primary : theme.colors.onSurface.opacity(0.6))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(
+                    Capsule()
+                        .fill(isSelected ? theme.colors.primary.opacity(0.15) : Color.clear)
+                )
+                .overlay(
+                    Capsule()
+                        .stroke(isSelected ? theme.colors.primary.opacity(0.3) : Color.clear, lineWidth: 1)
+                )
+        }
+        .buttonStyle(.plain)
     }
 }
 
