@@ -9,10 +9,11 @@ import SwiftUI
 
 struct OnboardingView: View {
     @Environment(\.theme) var theme
-    let onComplete: () -> Void
+    let onComplete: (PersonalizationResponse) -> Void
     @State private var currentPage = 0
+    @State private var viewModel = OnboardingViewModel()
 
-    let totalPages = 5
+    let totalPages = 4
 
     let pages: [OnboardingPage] = [
         OnboardingPage(
@@ -70,13 +71,13 @@ struct OnboardingView: View {
                     FirstPage()
                         .tag(0)
 
-                    SecondPage()
+                    SecondPage(viewModel: viewModel)
                         .tag(1)
 
-                    ThirdPage()
+                    ThirdPage(viewModel: viewModel)
                         .tag(2)
 
-                    FourthPage(currentPage: $currentPage)
+                    FourthPage(currentPage: $currentPage, viewModel: viewModel)
                         .tag(3)
 
 //                    ForEach(pages.indices, id: \.self) { index in
@@ -90,27 +91,40 @@ struct OnboardingView: View {
 
                 // Continue Button
                 Button {
-                    if currentPage < pages.count - 1 {
+                    if currentPage < totalPages - 1 {
                         withAnimation(.easeInOut(duration: 0.3)) {
                             currentPage += 1
                         }
                     } else {
-                        onComplete()
+                        // Last page - submit data
+                        Task {
+                            await viewModel.submitPersonalization()
+                            if let response = viewModel.personalizationResponse {
+                                onComplete(response)
+                            }
+                        }
                     }
                 } label: {
                     Text("Continue")
                         .font(.system(size: 18, weight: .semibold))
-
                         .frame(maxWidth: .infinity)
-//                        .background(
-//                            RoundedRectangle(cornerRadius: 16)
-//                                .fill(theme.colors.primaryVariant)
-//                        )
                 }
-                .buttonStyle(MyButtonStyle(isLoading: false))
+                .buttonStyle(MyButtonStyle(isLoading: viewModel.isLoading))
                 .sensoryFeedback(.impact(weight: .medium, intensity: 0.8), trigger: currentPage)
+                .disabled(viewModel.isLoading)
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
+
+                // Error message
+                if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 16)
+                        .transition(.opacity)
+                }
             }
         }
     }
@@ -213,22 +227,22 @@ struct OnboardingPageView: View {
 }
 
 #Preview("Light") {
-    OnboardingView(onComplete: {})
+    OnboardingView(onComplete: { _ in })
         .theme(.default)
         .preferredColorScheme(.light)
 }
 
 #Preview("Dark") {
-    OnboardingView(onComplete: {})
+    OnboardingView(onComplete: { _ in })
         .theme(.default)
         .preferredColorScheme(.dark)
 }
 
 #Preview("Progress Bar") {
     VStack(spacing: 40) {
-        OnboardingProgressBar(currentPage: 0, totalPages: 5, onBack: {})
-        OnboardingProgressBar(currentPage: 2, totalPages: 5, onBack: {})
-        OnboardingProgressBar(currentPage: 4, totalPages: 5, onBack: {})
+        OnboardingProgressBar(currentPage: 0, totalPages: 4, onBack: {})
+        OnboardingProgressBar(currentPage: 2, totalPages: 4, onBack: {})
+        OnboardingProgressBar(currentPage: 3, totalPages: 4, onBack: {})
     }
     .padding()
     .theme(.default)

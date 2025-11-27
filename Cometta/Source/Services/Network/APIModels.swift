@@ -5,8 +5,8 @@ struct PersonalizationRequest: Codable {
     let birthday: String
     let birthdayCoordinates: BirthdayCoordinates
     let birthdayTime: String
-    let email: String
-    let name: String
+    let email: String?
+    let name: String?
 
     enum CodingKeys: String, CodingKey {
         case birthday

@@ -3,6 +3,7 @@ import SwiftUI
 extension OnboardingView {
     struct SecondPage: View {
         @Environment(\.theme) var theme
+        @Bindable var viewModel: OnboardingViewModel
         @State private var selectedDate = Date()
         @State private var selectedZodiacIndex = 0
 
@@ -53,6 +54,7 @@ extension OnboardingView {
                     .labelsHidden()
                     .onChange(of: selectedDate) { _, newDate in
                         updateZodiacSign(for: newDate)
+                        viewModel.birthday = newDate
                     }
                     .frame(maxWidth: .infinity)
 
@@ -201,13 +203,13 @@ struct ZodiacSignView: View {
 
 // MARK: - Previews
 #Preview("Light") {
-    OnboardingView.SecondPage()
+    OnboardingView.SecondPage(viewModel: OnboardingViewModel())
         .theme(.default)
         .preferredColorScheme(.light)
 }
 
 #Preview("Dark") {
-    OnboardingView.SecondPage()
+    OnboardingView.SecondPage(viewModel: OnboardingViewModel())
         .theme(.default)
         .preferredColorScheme(.dark)
 }

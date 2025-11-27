@@ -9,6 +9,7 @@ class NetworkService {
     private let session: URLSession
     private let decoder: JSONDecoder
     private let encoder: JSONEncoder
+    private let logger = NetworkLogger()
 
     private init() {
         let configuration = URLSessionConfiguration.default
@@ -48,12 +49,23 @@ class NetworkService {
             do {
                 request.httpBody = try encoder.encode(body)
             } catch {
+                logger.logError(.decodingError(error))
                 throw NetworkError.decodingError(error)
             }
         }
 
+        // Log request
+        logger.logRequest(request)
+
         // Perform request
-        let (data, response) = try await session.data(for: request)
+        let (data, response): (Data, URLResponse)
+        do {
+            (data, response) = try await session.data(for: request)
+            logger.logResponse(response, data: data, error: nil)
+        } catch {
+            logger.logResponse(nil, data: nil, error: error)
+            throw NetworkError.networkError(error)
+        }
 
         // Validate response
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -65,15 +77,25 @@ class NetworkService {
         case 200...299:
             break
         case 401:
-            throw NetworkError.unauthorized
+            let error = NetworkError.unauthorized
+            logger.logError(error)
+            throw error
         case 403:
-            throw NetworkError.forbidden
+            let error = NetworkError.forbidden
+            logger.logError(error)
+            throw error
         case 404:
-            throw NetworkError.notFound
+            let error = NetworkError.notFound
+            logger.logError(error)
+            throw error
         case 500...599:
-            throw NetworkError.serverError(statusCode: httpResponse.statusCode)
+            let error = NetworkError.serverError(statusCode: httpResponse.statusCode)
+            logger.logError(error)
+            throw error
         default:
-            throw NetworkError.serverError(statusCode: httpResponse.statusCode)
+            let error = NetworkError.serverError(statusCode: httpResponse.statusCode)
+            logger.logError(error)
+            throw error
         }
 
         // Decode response
@@ -81,6 +103,7 @@ class NetworkService {
             let decodedResponse = try decoder.decode(T.self, from: data)
             return decodedResponse
         } catch {
+            logger.logError(.decodingError(error))
             throw NetworkError.decodingError(error)
         }
     }
@@ -89,11 +112,11 @@ class NetworkService {
 
     /// Submit user personalization data
     func submitPersonalization(
-        name: String,
-        email: String,
         birthday: Date,
         birthdayTime: Date,
-        location: Location
+        location: Location,
+        name: String? = nil,
+        email: String? = nil
     ) async throws -> PersonalizationResponse {
         // Format dates
         let dateFormatter = DateFormatter()

@@ -10,6 +10,9 @@ import SwiftUI
 struct RootCoordinatorView: View {
     @State private var coordinator = Coordinator<RootScreen>()
     @State private var currentScreen: RootScreen = .onboarding
+    @State private var personalizationResponse: PersonalizationResponse?
+
+    private let userDefaultsService = UserDefaultsService.shared
 
     var body: some View {
         build(screen: currentScreen)
@@ -22,7 +25,9 @@ struct RootCoordinatorView: View {
             SplashView()
 
         case .onboarding:
-            OnboardingView(onComplete: {})
+            OnboardingView(onComplete: { response in
+                completeOnboarding(with: response)
+            })
         case .main:
             HomeCoordinatorView()
         }
@@ -30,12 +35,11 @@ struct RootCoordinatorView: View {
 
     // Flow logic
     private func completeSplash() {
-        let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
-        currentScreen = hasSeenOnboarding ? .main : .onboarding
+        currentScreen = userDefaultsService.hasSeenOnboarding ? .main : .onboarding
     }
 
-    private func completeOnboarding() {
-        UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+    private func completeOnboarding(with response: PersonalizationResponse) {
+        personalizationResponse = response
         currentScreen = .main
     }
 }

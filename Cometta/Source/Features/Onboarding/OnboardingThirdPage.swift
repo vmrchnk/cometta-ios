@@ -3,6 +3,7 @@ import SwiftUI
 extension OnboardingView {
     struct ThirdPage: View {
         @Environment(\.theme) var theme
+        @Bindable var viewModel: OnboardingViewModel
         @State private var selectedTime = Date()
         @State private var hours: Int = 12
         @State private var minutes: Int = 0
@@ -92,6 +93,7 @@ extension OnboardingView {
                     .labelsHidden()
                     .onChange(of: selectedTime) { _, newTime in
                         updateTime(from: newTime)
+                        viewModel.birthdayTime = newTime
                     }
                     .frame(maxWidth: .infinity)
 
@@ -170,13 +172,13 @@ struct AnimatedClockIcon: View {
 
 // MARK: - Previews
 #Preview("Light") {
-    OnboardingView.ThirdPage()
+    OnboardingView.ThirdPage(viewModel: OnboardingViewModel())
         .theme(.default)
         .preferredColorScheme(.light)
 }
 
 #Preview("Dark") {
-    OnboardingView.ThirdPage()
+    OnboardingView.ThirdPage(viewModel: OnboardingViewModel())
         .theme(.default)
         .preferredColorScheme(.dark)
 }

@@ -4,6 +4,7 @@ extension OnboardingView {
     struct FourthPage: View {
         @Environment(\.theme) var theme
         @Binding var currentPage: Int
+        @Bindable var viewModel: OnboardingViewModel
         @State private var searchText = ""
         @State private var searchResults: [Location] = []
         @State private var selectedLocation: Location?
@@ -98,6 +99,7 @@ extension OnboardingView {
                                     .onTapGesture {
                                         withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                                             selectedLocation = location
+                                            viewModel.selectedLocation = location
                                             searchText = location.name
                                             searchResults = []
                                         }
@@ -296,13 +298,13 @@ struct LocationResultRow: View {
 
 // MARK: - Previews
 #Preview("Light") {
-    OnboardingView.FourthPage(currentPage: .constant(1))
+    OnboardingView.FourthPage(currentPage: .constant(3), viewModel: OnboardingViewModel())
         .theme(.default)
         .preferredColorScheme(.light)
 }
 
 #Preview("Dark") {
-    OnboardingView.FourthPage(currentPage: .constant(1))
+    OnboardingView.FourthPage(currentPage: .constant(3), viewModel: OnboardingViewModel())
         .theme(.default)
         .preferredColorScheme(.dark)
 }
