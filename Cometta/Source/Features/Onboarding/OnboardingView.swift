@@ -117,7 +117,7 @@ struct OnboardingView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(MyButtonStyle(isLoading: viewModel.isLoading))
-                .sensoryFeedback(.impact(weight: .medium, intensity: 0.8), trigger: currentPage)
+                .sensoryFeedback(.increase, trigger: currentPage)
                 .disabled(viewModel.isLoading || (currentPage == 3 && viewModel.selectedLocation == nil))
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
@@ -225,6 +225,7 @@ struct OnboardingPageView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
                     .lineSpacing(4)
+                    .lineLimit(0)
             }
 
             Spacer()

@@ -31,6 +31,7 @@ struct DailyHoroscopeTabsView: View {
                     tabsProxy.scrollTo(newTab, anchor: .center)
                 }
             }
+            .sensoryFeedback(.increase, trigger: viewModel.selectedTab)
         }
     }
 }
