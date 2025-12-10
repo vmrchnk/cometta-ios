@@ -9,97 +9,98 @@ extension OnboardingView {
         @State private var minutes: Int = 0
 
         var body: some View {
-            VStack(spacing: 32) {
-                // Title
-                Text("Time of birth?")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(theme.colors.onBackground)
-                    .padding(.top, 20)
+                VStack(spacing: 24) {
+                    // Title
+                    Text("Time of birth?")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundStyle(theme.colors.onBackground)
+                        .padding(.top, 20)
 
-                Spacer()
 
-                // Large animated time display
-                VStack(spacing: 16) {
-                    HStack(spacing: 8) {
-                        // Hours
-                        AnimatedNumberView(
-                            value: hours,
-                            textColor: theme.colors.primary
-                        )
 
-                        // Separator
-                        Text(":")
-                            .font(.system(size: 80, weight: .bold))
-                            .foregroundStyle(theme.colors.primary)
-                            .opacity(0.8)
-
-                        // Minutes
-                        AnimatedNumberView(
-                            value: minutes,
-                            textColor: theme.colors.primary
-                        )
-                    }
-
-                    // AM/PM indicator (optional)
-                    Text(hours >= 12 ? "PM" : "AM")
-                        .font(.system(size: 24, weight: .semibold))
-                        .foregroundStyle(theme.colors.primaryVariant)
-                        .opacity(0.7)
-                }
-                .padding(.vertical, 40)
-                .frame(maxWidth: .infinity)
-                .background(
-                    RoundedRectangle(cornerRadius: 24)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    theme.colors.primary.opacity(0.1),
-                                    theme.colors.primaryVariant.opacity(0.05)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+                    // Large animated time display
+                    VStack(spacing: 16) {
+                        HStack(spacing: 8) {
+                            // Hours
+                            AnimatedNumberView(
+                                value: hours,
+                                textColor: theme.colors.primary
                             )
-                        )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 24)
-                        .stroke(
-                            LinearGradient(
-                                colors: [
-                                    theme.colors.primary.opacity(0.3),
-                                    theme.colors.primaryVariant.opacity(0.2)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 2
-                        )
-                )
-                .padding(.horizontal, 24)
 
-                // Description
-                Text("The exact time helps create a more accurate birth chart")
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(theme.colors.onSurface.opacity(0.6))
-                    .multilineTextAlignment(.center)
-                    .lineLimit(nil)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 32)
+                            // Separator
+                            Text(":")
+                                .font(.system(size: 80, weight: .bold))
+                                .foregroundStyle(theme.colors.primary)
+                                .opacity(0.8)
 
-                Spacer()
+                            // Minutes
+                            AnimatedNumberView(
+                                value: minutes,
+                                textColor: theme.colors.primary
+                            )
+                        }
 
-                // Time Picker
-                DatePicker("", selection: $selectedTime, displayedComponents: .hourAndMinute)
-                    .datePickerStyle(.wheel)
-                    .labelsHidden()
-                    .onChange(of: selectedTime) { _, newTime in
-                        updateTime(from: newTime)
-                        viewModel.birthdayTime = newTime
+                        // AM/PM indicator (optional)
+                        Text(hours >= 12 ? "PM" : "AM")
+                            .font(.system(size: 24, weight: .semibold))
+                            .foregroundStyle(theme.colors.primaryVariant)
+                            .opacity(0.7)
                     }
+                    .padding(.vertical, 20)
                     .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 24)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        theme.colors.primary.opacity(0.1),
+                                        theme.colors.primaryVariant.opacity(0.05)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 24)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        theme.colors.primary.opacity(0.3),
+                                        theme.colors.primaryVariant.opacity(0.2)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 2
+                            )
+                    )
+                    .padding(.horizontal, 24)
+                    .padding(.bottom)
+                    
+                    // Description
+                    Text("The exact time helps create a more accurate birth chart")
+                        .font(.system(size: 14, weight: .regular))
+                        .foregroundStyle(theme.colors.onSurface.opacity(0.6))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 32)
 
-                Spacer()
-            }
+                    Spacer()
+
+                    // Time Picker
+                    DatePicker("", selection: $selectedTime, displayedComponents: .hourAndMinute)
+                        .datePickerStyle(.wheel)
+                        .labelsHidden()
+                        .onChange(of: selectedTime) { _, newTime in
+                            updateTime(from: newTime)
+                            viewModel.birthdayTime = newTime
+                        }
+                        .frame(maxWidth: .infinity)
+
+                    Spacer()
+                }
             .onAppear {
                 updateTime(from: selectedTime)
             }

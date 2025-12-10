@@ -72,9 +72,6 @@ struct OnboardingView: View {
                 .padding(.top, 16)
                 .opacity(currentPage > 0 ? 1 : 0)
 
-                Spacer()
-
-                // Pages
                 // Pages
                 ZStack {
                     Group {
@@ -102,8 +99,6 @@ struct OnboardingView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 // .gesture(DragGesture()) is no longer needed as ZStack doesn't support swipes by default
                 
-                Spacer()
-
                 // Continue Button
                 Button {
                     if currentPage < totalPages - 1 {
@@ -137,14 +132,25 @@ struct OnboardingView: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
 
-                // Error message
-                if let errorMessage = viewModel.errorMessage {
+                // Error message (overlay or below button? keeping below as before but ensures it pushes up if present, or overlay)
+                // To keep button fixed, error message should definitely handle its own space or be overlay. 
+                // In previous working version it was below. Let's keep it below but use overlay to not shift button? 
+                // Or just keep it below. If error appears, button shifting UP is acceptable usually, but let's try to keep it stable.
+                // Actually, let's put it in an overlay on the button area or just below with fixed height? 
+                // For now, restoring exact previous structure but WITHOUT the extra spacers in the middle.
+            }
+            
+            // Error message overlay to prevent layout shift
+            if let errorMessage = viewModel.errorMessage {
+                VStack {
+                    Spacer()
                     Text(errorMessage)
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(.red)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
                         .padding(.bottom, 16)
+                        .background(theme.colors.background.opacity(0.9))
                         .transition(.opacity)
                 }
             }

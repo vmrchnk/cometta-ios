@@ -37,8 +37,9 @@ extension OnboardingView {
                     selectedIndex: $selectedZodiacIndex
                 )
                 .foregroundStyle(theme.colors.onBackground)
-                .frame(height: 200)
-
+                .frame(height: 120)
+                .padding(.bottom)
+                
                 // Description
                 Text("The day you were born is important for the alignment of the planets")
                     .font(.system(size: 14, weight: .regular))
