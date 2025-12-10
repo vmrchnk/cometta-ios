@@ -8,19 +8,19 @@ extension OnboardingView {
         @State private var selectedZodiacIndex = 0
 
         // Zodiac signs in order with their date ranges
-        let zodiacSigns: [ZodiacSign] = [
-            ZodiacSign(name: "Capricorn", image: .Zodiac.capricorn, startMonth: 12, startDay: 22, endMonth: 1, endDay: 19),
-            ZodiacSign(name: "Aquarius", image: .Zodiac.aquarius, startMonth: 1, startDay: 20, endMonth: 2, endDay: 18),
-            ZodiacSign(name: "Pisces", image: .Zodiac.pisces, startMonth: 2, startDay: 19, endMonth: 3, endDay: 20),
-            ZodiacSign(name: "Aries", image: .Zodiac.aries, startMonth: 3, startDay: 21, endMonth: 4, endDay: 19),
-            ZodiacSign(name: "Taurus", image: .Zodiac.taurus, startMonth: 4, startDay: 20, endMonth: 5, endDay: 20),
-            ZodiacSign(name: "Gemini", image: .Zodiac.gemini, startMonth: 5, startDay: 21, endMonth: 6, endDay: 20),
-            ZodiacSign(name: "Cancer", image: .Zodiac.cancer, startMonth: 6, startDay: 21, endMonth: 7, endDay: 22),
-            ZodiacSign(name: "Leo", image: .Zodiac.leo, startMonth: 7, startDay: 23, endMonth: 8, endDay: 22),
-            ZodiacSign(name: "Virgo", image: .Zodiac.virgo, startMonth: 8, startDay: 23, endMonth: 9, endDay: 22),
-            ZodiacSign(name: "Libra", image: .Zodiac.libra, startMonth: 9, startDay: 23, endMonth: 10, endDay: 22),
-            ZodiacSign(name: "Scorpio", image: .Zodiac.scorpio, startMonth: 10, startDay: 23, endMonth: 11, endDay: 21),
-            ZodiacSign(name: "Sagittarius", image: .Zodiac.sagittarius, startMonth: 11, startDay: 22, endMonth: 12, endDay: 21)
+        let zodiacSigns: [OnboardingZodiacSign] = [
+            OnboardingZodiacSign(name: "Capricorn", image: .Zodiac.capricorn, startMonth: 12, startDay: 22, endMonth: 1, endDay: 19),
+            OnboardingZodiacSign(name: "Aquarius", image: .Zodiac.aquarius, startMonth: 1, startDay: 20, endMonth: 2, endDay: 18),
+            OnboardingZodiacSign(name: "Pisces", image: .Zodiac.pisces, startMonth: 2, startDay: 19, endMonth: 3, endDay: 20),
+            OnboardingZodiacSign(name: "Aries", image: .Zodiac.aries, startMonth: 3, startDay: 21, endMonth: 4, endDay: 19),
+            OnboardingZodiacSign(name: "Taurus", image: .Zodiac.taurus, startMonth: 4, startDay: 20, endMonth: 5, endDay: 20),
+            OnboardingZodiacSign(name: "Gemini", image: .Zodiac.gemini, startMonth: 5, startDay: 21, endMonth: 6, endDay: 20),
+            OnboardingZodiacSign(name: "Cancer", image: .Zodiac.cancer, startMonth: 6, startDay: 21, endMonth: 7, endDay: 22),
+            OnboardingZodiacSign(name: "Leo", image: .Zodiac.leo, startMonth: 7, startDay: 23, endMonth: 8, endDay: 22),
+            OnboardingZodiacSign(name: "Virgo", image: .Zodiac.virgo, startMonth: 8, startDay: 23, endMonth: 9, endDay: 22),
+            OnboardingZodiacSign(name: "Libra", image: .Zodiac.libra, startMonth: 9, startDay: 23, endMonth: 10, endDay: 22),
+            OnboardingZodiacSign(name: "Scorpio", image: .Zodiac.scorpio, startMonth: 10, startDay: 23, endMonth: 11, endDay: 21),
+            OnboardingZodiacSign(name: "Sagittarius", image: .Zodiac.sagittarius, startMonth: 11, startDay: 22, endMonth: 12, endDay: 21)
         ]
 
         var body: some View {
@@ -93,7 +93,7 @@ extension OnboardingView {
 }
 
 // MARK: - Zodiac Sign Model
-struct ZodiacSign: Identifiable {
+struct OnboardingZodiacSign: Identifiable {
     let id = UUID()
     let name: String
     let image: ImageResource
@@ -106,7 +106,7 @@ struct ZodiacSign: Identifiable {
 // MARK: - Zodiac Carousel Component
 struct ZodiacCarousel: View {
     @Environment(\.theme) var theme
-    let zodiacSigns: [ZodiacSign]
+    let zodiacSigns: [OnboardingZodiacSign]
     @Binding var selectedIndex: Int
 
     var body: some View {
@@ -140,7 +140,7 @@ struct ZodiacCarousel: View {
 // MARK: - Individual Zodiac Sign View
 struct ZodiacSignView: View {
     @Environment(\.theme) var theme
-    let sign: ZodiacSign
+    let sign: OnboardingZodiacSign
     let isSelected: Bool
 
     var body: some View {

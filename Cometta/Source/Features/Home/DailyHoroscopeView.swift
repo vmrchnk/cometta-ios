@@ -7,6 +7,7 @@ struct DailyHoroscopeView: View {
     @State private var selectedTab: LifeArea = .overall
     @State private var scrollOffset: CGFloat = 0
     @State private var isUserScrolling = false
+    @State private var showPremiumAlert = false
 
     enum LifeArea: String, CaseIterable {
         case overall = "Overall"
@@ -20,7 +21,14 @@ struct DailyHoroscopeView: View {
         VStack(spacing: 0) {
             // Header with zodiac sign
             VStack(spacing: 12) {
-                Text(horoscope.zodiacSign.uppercased())
+                Image(horoscope.zodiacSign.icon)
+                    .resizable()
+                    .renderingMode(.template)
+                    .scaledToFit()
+                    .frame(width: 48, height: 48)
+                    .foregroundStyle(theme.colors.primary)
+
+                Text(horoscope.zodiacSign.rawValue.uppercased())
                     .font(.system(size: 14, weight: .bold, design: .rounded))
                     .tracking(2)
                     .foregroundStyle(theme.colors.primary.opacity(0.8))
@@ -173,7 +181,60 @@ struct DailyHoroscopeView: View {
                         Text("Generated at \(formattedTime(horoscope.meta.generatedAt))")
                             .font(.system(size: 11, weight: .regular))
                             .foregroundStyle(theme.colors.onSurface.opacity(0.4))
-                            .padding(.bottom, 40)
+                            .padding(.top, 40)
+                            .padding(.bottom, 16)
+
+                        // Tomorrow's horoscope CTA
+                        Button {
+                            showPremiumAlert = true
+                        } label: {
+                            VStack(spacing: 16) {
+                                Image(systemName: "sparkles")
+                                    .font(.system(size: 32, weight: .medium))
+                                    .foregroundStyle(
+                                        LinearGradient(
+                                            colors: [theme.colors.primaryVariant, theme.colors.primary],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+
+                                Text("Discover What Tomorrow Holds")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundStyle(theme.colors.onBackground)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 32)
+                            .background(
+                                RoundedRectangle(cornerRadius: 24)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [
+                                                theme.colors.primary.opacity(0.15),
+                                                theme.colors.primaryVariant.opacity(0.1)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 24)
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [theme.colors.primary.opacity(0.5), theme.colors.primaryVariant.opacity(0.5)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 2
+                                    )
+                            )
+                            .shadow(color: theme.colors.primary.opacity(0.2), radius: 12, x: 0, y: 4)
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 40)
                     }
                 }
                 .coordinateSpace(name: "scroll")
@@ -201,6 +262,15 @@ struct DailyHoroscopeView: View {
             }
         }
         .background(theme.colors.background)
+        .alert("Unlock Premium", isPresented: $showPremiumAlert) {
+            Button("Get Premium", role: .none) {
+                // TODO: Navigate to premium purchase
+                print("🔮 Navigate to premium purchase")
+            }
+            Button("Maybe Later", role: .cancel) {}
+        } message: {
+            Text("Unlock tomorrow's horoscope and get access to exclusive features with Cometta Premium.")
+        }
     }
 
     private func formattedDate(_ dateString: String) -> String {
@@ -220,6 +290,8 @@ struct DailyHoroscopeView: View {
         timeFormatter.timeStyle = .short
         return timeFormatter.string(from: date)
     }
+
+
 
 }
 
@@ -398,7 +470,7 @@ struct TransitRowView: View {
 #Preview {
     let sampleHoroscope = DailyHoroscopeResponse(
         date: "2025-11-22",
-        zodiacSign: "Scorpio",
+        zodiacSign: .scorpio,
         dominantThemes: ["communication", "emotions", "work"],
         overall: OverallHoroscope(
             headline: "A focused day with emotionally charged conversations",

@@ -1,9 +1,29 @@
 import Foundation
 
+// MARK: - Zodiac Sign
+enum ZodiacSign: String, CaseIterable, Codable {
+    case aries
+    case taurus
+    case gemini
+    case cancer
+    case leo
+    case virgo
+    case libra
+    case scorpio
+    case sagittarius
+    case capricorn
+    case aquarius
+    case pisces
+
+    var icon: String {
+        "Zodiac/\(rawValue.capitalized)"
+    }
+}
+
 // MARK: - Daily Horoscope Response
 struct DailyHoroscopeResponse: Codable {
     let date: String
-    let zodiacSign: String
+    let zodiacSign: ZodiacSign
     let dominantThemes: [String]
     let overall: OverallHoroscope
     let transits: [Transit]
