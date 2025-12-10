@@ -11,7 +11,13 @@ struct OnboardingView: View {
     @Environment(\.theme) var theme
     let onComplete: (PersonalizationResponse) -> Void
     @State private var currentPage = 0
+    @State private var direction: NavigationDirection = .forward
     @State private var viewModel = OnboardingViewModel()
+
+    enum NavigationDirection {
+        case forward
+        case backward
+    }
 
     let totalPages = 4
 
@@ -55,7 +61,8 @@ struct OnboardingView: View {
                     totalPages: totalPages,
                     onBack: {
                         if currentPage > 0 {
-                            withAnimation {
+                            direction = .backward
+                            withAnimation(.easeInOut(duration: 0.3)) {
                                 currentPage -= 1
                             }
                         }
@@ -68,31 +75,39 @@ struct OnboardingView: View {
                 Spacer()
 
                 // Pages
-                TabView(selection: $currentPage) {
-                    FirstPage()
-                        .tag(0)
-
-                    SecondPage(viewModel: viewModel)
-                        .tag(1)
-
-                    ThirdPage(viewModel: viewModel)
-                        .tag(2)
-
-                    FourthPage(currentPage: $currentPage, viewModel: viewModel)
-                        .tag(3)
-
-//                    ForEach(pages.indices, id: \.self) { index in
-//                        OnboardingPageView(page: pages[index])
-//                            .tag(index)
-//                    }
+                // Pages
+                ZStack {
+                    Group {
+                        switch currentPage {
+                        case 0:
+                            FirstPage()
+                        case 1:
+                            SecondPage(viewModel: viewModel)
+                        case 2:
+                            ThirdPage(viewModel: viewModel)
+                        case 3:
+                            FourthPage(currentPage: $currentPage, viewModel: viewModel)
+                        default:
+                            EmptyView()
+                        }
+                    }
+                    .id(currentPage)
+                    .transition(
+                        direction == .forward
+                        ? .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
+                        : .asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
+                    )
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-
+                .animation(.easeInOut(duration: 0.3), value: currentPage)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // .gesture(DragGesture()) is no longer needed as ZStack doesn't support swipes by default
+                
                 Spacer()
 
                 // Continue Button
                 Button {
                     if currentPage < totalPages - 1 {
+                        direction = .forward
                         withAnimation(.easeInOut(duration: 0.3)) {
                             currentPage += 1
                         }
