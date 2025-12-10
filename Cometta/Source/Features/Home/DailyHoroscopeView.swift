@@ -2,38 +2,29 @@ import SwiftUI
 
 struct DailyHoroscopeView: View {
     @Environment(\.theme) var theme
-    let horoscope: DailyHoroscopeResponse
+    @State private var viewModel: DailyHoroscopeViewModel
 
-    @State private var selectedTab: LifeArea = .overall
-    @State private var scrollOffset: CGFloat = 0
-    @State private var isUserScrolling = false
-    @State private var showPremiumAlert = false
-
-    enum LifeArea: String, CaseIterable {
-        case overall = "Overall"
-        case relationships = "Relationships"
-        case work = "Work"
-        case energy = "Energy"
-        case communication = "Communication"
+    init(horoscope: DailyHoroscopeResponse) {
+        _viewModel = State(initialValue: DailyHoroscopeViewModel(horoscope: horoscope))
     }
 
     var body: some View {
         VStack(spacing: 0) {
             // Header with zodiac sign
             VStack(spacing: 12) {
-                Image(horoscope.zodiacSign.icon)
+                Image(viewModel.zodiacIcon)
                     .resizable()
                     .renderingMode(.template)
                     .scaledToFit()
                     .frame(width: 48, height: 48)
                     .foregroundStyle(theme.colors.primary)
 
-                Text(horoscope.zodiacSign.rawValue.uppercased())
+                Text(viewModel.zodiacName)
                     .font(.system(size: 14, weight: .bold, design: .rounded))
                     .tracking(2)
                     .foregroundStyle(theme.colors.primary.opacity(0.8))
 
-                Text(formattedDate(horoscope.date))
+                Text(viewModel.formattedDate)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(theme.colors.onSurface.opacity(0.6))
             }
@@ -42,24 +33,33 @@ struct DailyHoroscopeView: View {
             .background(theme.colors.background)
 
             // Tabs
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(LifeArea.allCases, id: \.self) { area in
-                        TabButton(
-                            title: area.rawValue,
-                            isSelected: selectedTab == area,
-                            theme: theme
-                        ) {
-                            withAnimation {
-                                selectedTab = area
+            ScrollViewReader { tabsProxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(DailyHoroscopeViewModel.LifeArea.allCases, id: \.self) { area in
+                            TabButton(
+                                title: area.rawValue,
+                                isSelected: viewModel.selectedTab == area,
+                                theme: theme
+                            ) {
+                                viewModel.isTabTap = true
+                                withAnimation {
+                                    viewModel.selectedTab = area
+                                }
                             }
+                            .id(area)
                         }
                     }
+                    .padding(.horizontal, 24)
                 }
-                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .background(theme.colors.background)
+                .onChange(of: viewModel.selectedTab) { _, newTab in
+                    withAnimation {
+                        tabsProxy.scrollTo(newTab, anchor: .center)
+                    }
+                }
             }
-            .padding(.vertical, 12)
-            .background(theme.colors.background)
 
             Divider()
 
@@ -68,13 +68,13 @@ struct DailyHoroscopeView: View {
                     LazyVStack(spacing: 0, pinnedViews: []) {
                         // Overall section
                         VStack(spacing: 20) {
-                            Text(horoscope.overall.headline)
+                            Text(viewModel.horoscope.overall.headline)
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundStyle(theme.colors.onBackground)
                                 .multilineTextAlignment(.center)
                                 .lineSpacing(4)
 
-                            Text(horoscope.overall.summary)
+                            Text(viewModel.horoscope.overall.summary)
                                 .font(.system(size: 16, weight: .regular))
                                 .foregroundStyle(theme.colors.onSurface.opacity(0.8))
                                 .multilineTextAlignment(.center)
@@ -94,7 +94,7 @@ struct DailyHoroscopeView: View {
                         .id(0)
 
                         // Dominant themes
-                        ThemesView(themes: horoscope.dominantThemes, theme: theme)
+                        ThemesView(themes: viewModel.horoscope.dominantThemes, theme: theme)
                             .padding(.bottom, 32)
 
                         Divider()
@@ -105,7 +105,7 @@ struct DailyHoroscopeView: View {
                         AreaCardView(
                             icon: "heart.fill",
                             title: "Relationships",
-                            area: horoscope.areas.relationships,
+                            area: viewModel.horoscope.areas.relationships,
                             theme: theme
                         )
                         .padding(.horizontal, 24)
@@ -124,7 +124,7 @@ struct DailyHoroscopeView: View {
                         AreaCardView(
                             icon: "briefcase.fill",
                             title: "Work",
-                            area: horoscope.areas.work,
+                            area: viewModel.horoscope.areas.work,
                             theme: theme
                         )
                         .padding(.horizontal, 24)
@@ -143,7 +143,7 @@ struct DailyHoroscopeView: View {
                         AreaCardView(
                             icon: "bolt.fill",
                             title: "Energy",
-                            area: horoscope.areas.energy,
+                            area: viewModel.horoscope.areas.energy,
                             theme: theme
                         )
                         .padding(.horizontal, 24)
@@ -162,7 +162,7 @@ struct DailyHoroscopeView: View {
                         AreaCardView(
                             icon: "message.fill",
                             title: "Communication",
-                            area: horoscope.areas.communication,
+                            area: viewModel.horoscope.areas.communication,
                             theme: theme
                         )
                         .padding(.horizontal, 24)
@@ -178,7 +178,7 @@ struct DailyHoroscopeView: View {
                         .id(4)
 
                         // Footer
-                        Text("Generated at \(formattedTime(horoscope.meta.generatedAt))")
+                        Text("Generated at \(viewModel.formattedTime)")
                             .font(.system(size: 11, weight: .regular))
                             .foregroundStyle(theme.colors.onSurface.opacity(0.4))
                             .padding(.top, 40)
@@ -186,7 +186,7 @@ struct DailyHoroscopeView: View {
 
                         // Tomorrow's horoscope CTA
                         Button {
-                            showPremiumAlert = true
+                            viewModel.showPremiumAlert = true
                         } label: {
                             VStack(spacing: 16) {
                                 Image(systemName: "sparkles")
@@ -239,30 +239,42 @@ struct DailyHoroscopeView: View {
                 }
                 .coordinateSpace(name: "scroll")
                 .onPreferenceChange(VisibleSectionPreferenceKey.self) { visibleIndex in
-                    if !isUserScrolling, let index = visibleIndex {
-                        selectedTab = LifeArea.allCases[index]
+                    if !viewModel.isUserScrolling && !viewModel.isTabTap, let index = visibleIndex {
+                        let newTab = DailyHoroscopeViewModel.LifeArea.allCases[index]
+                        if viewModel.selectedTab != newTab {
+                            withAnimation {
+                                viewModel.selectedTab = newTab
+                            }
+                        }
                     }
                 }
                 .simultaneousGesture(
                     DragGesture()
                         .onChanged { _ in
-                            isUserScrolling = true
+                            viewModel.isUserScrolling = true
                         }
                         .onEnded { _ in
-                            isUserScrolling = false
+                            viewModel.isUserScrolling = false
                         }
                 )
-                .onChange(of: selectedTab) { _, newTab in
-                    if let index = LifeArea.allCases.firstIndex(of: newTab) {
-                        withAnimation {
-                            proxy.scrollTo(index, anchor: .top)
+                .onChange(of: viewModel.selectedTab) { _, newTab in
+                    if viewModel.isTabTap {
+                        if let index = DailyHoroscopeViewModel.LifeArea.allCases.firstIndex(of: newTab) {
+                            withAnimation {
+                                proxy.scrollTo(index, anchor: .top)
+                            }
+                        }
+                        
+                        // Reset flag after animation completes to avoid fighting with preference key
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            viewModel.isTabTap = false
                         }
                     }
                 }
             }
         }
         .background(theme.colors.background)
-        .alert("Unlock Premium", isPresented: $showPremiumAlert) {
+        .alert("Unlock Premium", isPresented: $viewModel.showPremiumAlert) {
             Button("Get Premium", role: .none) {
                 // TODO: Navigate to premium purchase
                 print("🔮 Navigate to premium purchase")
@@ -272,29 +284,8 @@ struct DailyHoroscopeView: View {
             Text("Unlock tomorrow's horoscope and get access to exclusive features with Cometta Premium.")
         }
     }
-
-    private func formattedDate(_ dateString: String) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        guard let date = formatter.date(from: dateString) else { return dateString }
-
-        formatter.dateStyle = .long
-        return formatter.string(from: date)
-    }
-
-    private func formattedTime(_ isoString: String) -> String {
-        let formatter = ISO8601DateFormatter()
-        guard let date = formatter.date(from: isoString) else { return isoString }
-
-        let timeFormatter = DateFormatter()
-        timeFormatter.timeStyle = .short
-        return timeFormatter.string(from: date)
-    }
-
-
-
 }
-
+    
 // MARK: - Preference Key
 struct VisibleSectionPreferenceKey: PreferenceKey {
     static var defaultValue: Int?
