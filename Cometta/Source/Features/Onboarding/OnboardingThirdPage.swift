@@ -76,7 +76,7 @@ extension OnboardingView {
                             )
                     )
                     .padding(.horizontal, 24)
-                    .padding(.bottom)
+                    .padding(.bottom, 8)
                     
                     // Description
                     Text("The exact time helps create a more accurate birth chart")

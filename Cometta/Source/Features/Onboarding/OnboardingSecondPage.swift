@@ -38,7 +38,7 @@ extension OnboardingView {
                 )
                 .foregroundStyle(theme.colors.onBackground)
                 .frame(height: 120)
-                .padding(.bottom)
+                .padding(.bottom, 8)
                 
                 // Description
                 Text("The day you were born is important for the alignment of the planets")
