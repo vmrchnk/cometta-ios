@@ -102,6 +102,7 @@ extension OnboardingView {
                                             viewModel.selectedLocation = location
                                             searchText = location.name
                                             searchResults = []
+                                            isTextFieldFocused = false
                                         }
                                     }
                             }
