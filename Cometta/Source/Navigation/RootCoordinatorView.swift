@@ -25,6 +25,9 @@ struct RootCoordinatorView: View {
     var body: some View {
         build(screen: currentScreen)
             .id(currentScreen)
+            .onReceive(NotificationCenter.default.publisher(for: .logout)) { _ in
+                handleLogout()
+            }
     }
 
     @ViewBuilder
@@ -57,4 +60,18 @@ struct RootCoordinatorView: View {
         }
         print("🔄 Current screen changed to: \(currentScreen)")
     }
+
+    private func handleLogout() {
+        print("🚪 Logging out...")
+        // Reset onboarding state
+        userDefaultsService.hasSeenOnboarding = false
+        // Update screen
+        withAnimation {
+            currentScreen = .onboarding
+        }
+    }
+}
+
+extension Notification.Name {
+    static let logout = Notification.Name("logout")
 }

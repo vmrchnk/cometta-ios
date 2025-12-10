@@ -108,13 +108,6 @@ struct DailyHoroscopeView: View {
                         )
                         .id(4)
 
-                        // Footer
-                        Text("Generated at \(viewModel.formattedTime)")
-                            .font(.system(size: 11, weight: .regular))
-                            .foregroundStyle(theme.colors.onSurface.opacity(0.4))
-                            .padding(.top, 40)
-                            .padding(.bottom, 16)
-
                         // Tomorrow's horoscope CTA
                         HoroscopePremiumCTA(viewModel: viewModel, theme: theme)
                     }

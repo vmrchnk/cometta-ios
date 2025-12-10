@@ -54,7 +54,7 @@ struct HomeCoordinatorView: View {
             Text("Profile")
 
         case .settings:
-            Text("Settings")
+            SettingsView()
 
         case .detail(let id):
             Text("Detail: \(id)")
@@ -73,7 +73,7 @@ struct HomeCoordinatorView: View {
             coordinator.push(screen: .profile)
 
         case .settingsTapped:
-            coordinator.presentSheet(.settings)
+            coordinator.push(screen: .settings)
 
         case .detailTapped(let id):
             coordinator.push(screen: .detail(id: id))

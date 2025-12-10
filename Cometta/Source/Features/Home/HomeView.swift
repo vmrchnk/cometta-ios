@@ -47,6 +47,16 @@ struct HomeView: View {
         .task {
             await viewModel.loadDailyHoroscope()
         }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    params.onAction(.settingsTapped)
+                } label: {
+                    Image(systemName: "gearshape")
+                        .foregroundStyle(theme.colors.primary)
+                }
+            }
+        }
     }
 }
 
