@@ -23,27 +23,26 @@ struct RootCoordinatorView: View {
     }
 
     var body: some View {
-        build(screen: currentScreen)
-            .id(currentScreen)
-            .onReceive(NotificationCenter.default.publisher(for: .logout)) { _ in
-                handleLogout()
+        ZStack {
+            switch currentScreen {
+            case .splash:
+                SplashView()
+                    .transition(.opacity)
+            case .onboarding:
+                OnboardingView(onComplete: { response in
+                    Task { @MainActor in
+                        completeOnboarding(with: response)
+                    }
+                })
+                .transition(.opacity)
+            case .main:
+                HomeCoordinatorView()
+                    .transition(.opacity)
             }
-    }
-
-    @ViewBuilder
-    func build(screen: RootScreen) -> some View {
-        switch screen {
-        case .splash:
-            SplashView()
-
-        case .onboarding:
-            OnboardingView(onComplete: { response in
-                Task { @MainActor in
-                    completeOnboarding(with: response)
-                }
-            })
-        case .main:
-            HomeCoordinatorView()
+        }
+        .animation(.easeInOut(duration: 0.5), value: currentScreen)
+        .onReceive(NotificationCenter.default.publisher(for: .logout)) { _ in
+            handleLogout()
         }
     }
 
@@ -66,7 +65,7 @@ struct RootCoordinatorView: View {
         // Reset onboarding state
         userDefaultsService.hasSeenOnboarding = false
         // Update screen
-        withAnimation {
+        withAnimation(.easeInOut(duration: 0.5)) {
             currentScreen = .onboarding
         }
     }

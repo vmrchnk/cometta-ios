@@ -47,11 +47,7 @@ struct SettingsView: View {
         .alert("Are you sure you want to log out?", isPresented: $showLogoutAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Log Out", role: .destructive) {
-                dismiss()
-                // Small delay to allow sheet dismissal transition to start before root switch
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    NotificationCenter.default.post(name: .logout, object: nil)
-                }
+                NotificationCenter.default.post(name: .logout, object: nil)
             }
         }
     }
