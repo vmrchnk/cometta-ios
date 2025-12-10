@@ -10,56 +10,11 @@ struct DailyHoroscopeView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Header with zodiac sign
-            VStack(spacing: 12) {
-                Image(viewModel.zodiacIcon)
-                    .resizable()
-                    .renderingMode(.template)
-                    .scaledToFit()
-                    .frame(width: 48, height: 48)
-                    .foregroundStyle(theme.colors.primary)
-
-                Text(viewModel.zodiacName)
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .tracking(2)
-                    .foregroundStyle(theme.colors.primary.opacity(0.8))
-
-                Text(viewModel.formattedDate)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(theme.colors.onSurface.opacity(0.6))
-            }
-            .padding(.top, 20)
-            .padding(.bottom, 16)
-            .background(theme.colors.background)
+            // Header
+            DailyHoroscopeHeaderView(viewModel: viewModel, theme: theme)
 
             // Tabs
-            ScrollViewReader { tabsProxy in
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(DailyHoroscopeViewModel.LifeArea.allCases, id: \.self) { area in
-                            TabButton(
-                                title: area.rawValue,
-                                isSelected: viewModel.selectedTab == area,
-                                theme: theme
-                            ) {
-                                viewModel.isTabTap = true
-                                withAnimation {
-                                    viewModel.selectedTab = area
-                                }
-                            }
-                            .id(area)
-                        }
-                    }
-                    .padding(.horizontal, 24)
-                }
-                .padding(.vertical, 12)
-                .background(theme.colors.background)
-                .onChange(of: viewModel.selectedTab) { _, newTab in
-                    withAnimation {
-                        tabsProxy.scrollTo(newTab, anchor: .center)
-                    }
-                }
-            }
+            DailyHoroscopeTabsView(viewModel: viewModel, theme: theme)
 
             Divider()
 
@@ -67,31 +22,7 @@ struct DailyHoroscopeView: View {
                 ScrollView {
                     LazyVStack(spacing: 0, pinnedViews: []) {
                         // Overall section
-                        VStack(spacing: 20) {
-                            Text(viewModel.horoscope.overall.headline)
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundStyle(theme.colors.onBackground)
-                                .multilineTextAlignment(.center)
-                                .lineSpacing(4)
-
-                            Text(viewModel.horoscope.overall.summary)
-                                .font(.system(size: 16, weight: .regular))
-                                .foregroundStyle(theme.colors.onSurface.opacity(0.8))
-                                .multilineTextAlignment(.center)
-                                .lineSpacing(6)
-                        }
-                        .padding(.horizontal, 24)
-                        .padding(.top, 20)
-                        .padding(.bottom, 32)
-                        .background(
-                            GeometryReader { geo in
-                                Color.clear.preference(
-                                    key: VisibleSectionPreferenceKey.self,
-                                    value: geo.frame(in: .named("scroll")).minY < 200 ? 0 : nil
-                                )
-                            }
-                        )
-                        .id(0)
+                        HoroscopeOverallView(viewModel: viewModel, theme: theme)
 
                         // Dominant themes
                         ThemesView(themes: viewModel.horoscope.dominantThemes, theme: theme)
@@ -185,56 +116,7 @@ struct DailyHoroscopeView: View {
                             .padding(.bottom, 16)
 
                         // Tomorrow's horoscope CTA
-                        Button {
-                            viewModel.showPremiumAlert = true
-                        } label: {
-                            VStack(spacing: 16) {
-                                Image(systemName: "sparkles")
-                                    .font(.system(size: 32, weight: .medium))
-                                    .foregroundStyle(
-                                        LinearGradient(
-                                            colors: [theme.colors.primaryVariant, theme.colors.primary],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-
-                                Text("Discover What Tomorrow Holds")
-                                    .font(.system(size: 18, weight: .bold))
-                                    .foregroundStyle(theme.colors.onBackground)
-                                    .multilineTextAlignment(.center)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 32)
-                            .background(
-                                RoundedRectangle(cornerRadius: 24)
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [
-                                                theme.colors.primary.opacity(0.15),
-                                                theme.colors.primaryVariant.opacity(0.1)
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 24)
-                                    .stroke(
-                                        LinearGradient(
-                                            colors: [theme.colors.primary.opacity(0.5), theme.colors.primaryVariant.opacity(0.5)],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ),
-                                        lineWidth: 2
-                                    )
-                            )
-                            .shadow(color: theme.colors.primary.opacity(0.2), radius: 12, x: 0, y: 4)
-                        }
-                        .buttonStyle(.plain)
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 40)
+                        HoroscopePremiumCTA(viewModel: viewModel, theme: theme)
                     }
                 }
                 .coordinateSpace(name: "scroll")
