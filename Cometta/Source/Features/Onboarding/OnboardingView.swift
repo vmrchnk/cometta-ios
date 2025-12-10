@@ -118,7 +118,7 @@ struct OnboardingView: View {
                 }
                 .buttonStyle(MyButtonStyle(isLoading: viewModel.isLoading))
                 .sensoryFeedback(.impact(weight: .medium, intensity: 0.8), trigger: currentPage)
-                .disabled(viewModel.isLoading)
+                .disabled(viewModel.isLoading || (currentPage == 3 && viewModel.selectedLocation == nil))
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
 
@@ -259,6 +259,7 @@ struct OnboardingPageView: View {
 
 struct MyButtonStyle: ButtonStyle {
     @Environment(\.theme) var theme
+    @Environment(\.isEnabled) private var isEnabled
     var isLoading: Bool
 
     func makeBody(configuration: Configuration) -> some View {
@@ -272,8 +273,8 @@ struct MyButtonStyle: ButtonStyle {
         }
         .padding()
         .background(
-            configuration.isPressed ? theme.colors.primaryVariant :
-                theme.colors.primary 
+            (configuration.isPressed ? theme.colors.primaryVariant : theme.colors.primary)
+                .opacity(isEnabled ? 1.0 : 0.4)
         )
         .clipShape(RoundedRectangle(cornerRadius: 24))
         .scaleEffect(configuration.isPressed ? 0.96 : 1.0)

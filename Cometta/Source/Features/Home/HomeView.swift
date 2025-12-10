@@ -61,11 +61,12 @@ struct HomeView: View {
 
 // MARK: - Loading View
 struct LoadingView: View {
+    @Environment(\.colorScheme) var colorScheme
     let theme: AppTheme
 
     var body: some View {
         VStack(spacing: 20) {
-            LottieView(animation: .named("loader"))
+            LottieView(animation: .named(colorScheme == .light ? "loader_light" : "loader"))
                 .looping()
                 .padding(.horizontal)
             Text("Loading your horoscope...")
