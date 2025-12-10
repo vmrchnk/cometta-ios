@@ -26,8 +26,7 @@ struct RootCoordinatorView: View {
         ZStack {
             switch currentScreen {
             case .splash:
-                SplashView()
-                    .transition(.opacity)
+                Color.black // Placeholder or EmptyView since SplashView was deleted
             case .onboarding:
                 OnboardingView(onComplete: { response in
                     Task { @MainActor in
@@ -35,8 +34,8 @@ struct RootCoordinatorView: View {
                     }
                 })
                 .transition(.opacity)
-            case .main:
-                HomeCoordinatorView()
+            case .main: // Keeping .main case as it's used in init and other functions
+                HomeCoordinatorView() // Assuming .main also leads to HomeCoordinatorView for now
                     .transition(.opacity)
             }
         }

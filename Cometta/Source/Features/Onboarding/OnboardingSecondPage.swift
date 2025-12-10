@@ -45,6 +45,8 @@ extension OnboardingView {
                     .foregroundStyle(theme.colors.onSurface.opacity(0.6))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Spacer()
 

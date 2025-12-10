@@ -225,7 +225,7 @@ struct OnboardingPageView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
                     .lineSpacing(4)
-                    .lineLimit(0)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Spacer()

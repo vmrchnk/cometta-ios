@@ -82,7 +82,8 @@ extension OnboardingView {
                     .font(.system(size: 14, weight: .regular))
                     .foregroundStyle(theme.colors.onSurface.opacity(0.6))
                     .multilineTextAlignment(.center)
-                    .lineLimit(2)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 32)
 
                 Spacer()
