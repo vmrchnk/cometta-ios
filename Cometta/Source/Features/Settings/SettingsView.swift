@@ -10,17 +10,14 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.theme) var theme
     @Environment(\.dismiss) var dismiss
+    @State private var showLogoutAlert = false
 
     var body: some View {
         VStack(spacing: 0) {
             List {
                 Section {
                     Button(role: .destructive) {
-                        dismiss()
-                        // Small delay to allow sheet dismissal transition to start before root switch
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            NotificationCenter.default.post(name: .logout, object: nil)
-                        }
+                        showLogoutAlert = true
                     } label: {
                         HStack {
                             Image(systemName: "rectangle.portrait.and.arrow.right")
@@ -47,6 +44,16 @@ struct SettingsView: View {
         .background(theme.colors.background)
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
+        .alert("Are you sure you want to log out?", isPresented: $showLogoutAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Log Out", role: .destructive) {
+                dismiss()
+                // Small delay to allow sheet dismissal transition to start before root switch
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    NotificationCenter.default.post(name: .logout, object: nil)
+                }
+            }
+        }
     }
 }
 
