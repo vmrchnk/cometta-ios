@@ -8,39 +8,57 @@
 import SwiftUI
 
 struct HomeCoordinatorView: View {
+    @Environment(\.theme) var theme
     @State private var coordinator = Coordinator<HomeScreen>()
+    @State private var homeViewModel = HomeViewModel()
 
     var body: some View {
-        NavigationStack(path: $coordinator.path) {
-            build(screen: .home)
-                .navigationDestination(for: HomeScreen.self) { screen in
+        ZStack {
+            NavigationStack(path: $coordinator.path) {
+                build(screen: .home)
+                    .navigationDestination(for: HomeScreen.self) { screen in
+                        build(screen: screen)
+                    }
+            }
+            .sheet(item: $coordinator.sheet) { screen in
+                NavigationStack {
                     build(screen: screen)
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("Close") {
+                                    coordinator.dismissSheet()
+                                }
+                            }
+                        }
                 }
-        }
-        .sheet(item: $coordinator.sheet) { screen in
-            NavigationStack {
-                build(screen: screen)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Close") {
-                                coordinator.dismissSheet()
+            }
+            .fullScreenCover(item: $coordinator.fullScreenCover) { screen in
+                NavigationStack {
+                    build(screen: screen)
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("Close") {
+                                    coordinator.dismissCover()
+                                }
                             }
                         }
-                    }
+                }
+            }
+            
+            // Full Screen Loading Overlay
+            if homeViewModel.isLoading {
+                Color.black.opacity(0.5) // Dim background
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                
+                LoadingView(theme: theme)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(theme.colors.background)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
             }
         }
-        .fullScreenCover(item: $coordinator.fullScreenCover) { screen in
-            NavigationStack {
-                build(screen: screen)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Close") {
-                                coordinator.dismissCover()
-                            }
-                        }
-                    }
-            }
-        }
+        .animation(.easeInOut(duration: 0.3), value: homeViewModel.isLoading)
     }
 
     // MARK: - View Builder
@@ -48,7 +66,7 @@ struct HomeCoordinatorView: View {
     func build(screen: HomeScreen) -> some View {
         switch screen {
         case .home:
-            HomeView(params: .init(onAction: handleHomeAction))
+            HomeView(params: .init(onAction: handleHomeAction), viewModel: homeViewModel)
 
         case .profile:
             Text("Profile")

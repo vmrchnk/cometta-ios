@@ -11,7 +11,7 @@ import Lottie
 struct HomeView: View {
     @Environment(\.theme) var theme
     let params: Params
-    @State private var viewModel = HomeViewModel()
+    var viewModel: HomeViewModel
 
     // MARK: - Params with Action-based approach
     struct Params {
@@ -27,9 +27,7 @@ struct HomeView: View {
 
     var body: some View {
         Group {
-            if viewModel.isLoading {
-                LoadingView(theme: theme)
-            } else if let errorMessage = viewModel.errorMessage {
+            if let errorMessage = viewModel.errorMessage {
                 ErrorView(message: errorMessage, theme: theme) {
                     Task {
                         await viewModel.loadDailyHoroscope()
