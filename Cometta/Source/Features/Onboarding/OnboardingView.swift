@@ -63,6 +63,7 @@ struct OnboardingView: View {
                 )
                 .padding(.horizontal, 24)
                 .padding(.top, 16)
+                .opacity(currentPage > 0 ? 1 : 0)
 
                 Spacer()
 

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Lottie
 
 struct HomeView: View {
     @Environment(\.theme) var theme
@@ -66,13 +67,13 @@ struct LoadingView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            ProgressView()
-                .tint(theme.colors.primary)
-                .scaleEffect(1.5)
-
+            LottieView(animation: .named("loader"))
+                .looping()
+                .padding(.horizontal)
             Text("Loading your horoscope...")
-                .font(.system(size: 16, weight: .medium))
+                .font(.system(size: 18, weight: .medium))
                 .foregroundStyle(theme.colors.onSurface.opacity(0.6))
+                .offset(y: -20)
         }
     }
 }
@@ -119,27 +120,31 @@ struct EmptyStateView: View {
         }
     }
 }
+//
+//#Preview("Light") {
+//    NavigationStack {
+//        HomeView(params: .init(
+//            onAction: { action in
+//                print("Action: \(action)")
+//            }
+//        ))
+//    }
+//    .theme(.default)
+//    .preferredColorScheme(.light)
+//}
+//
+//#Preview("Dark") {
+//    NavigationStack {
+//        HomeView(params: .init(
+//            onAction: { action in
+//                print("Action: \(action)")
+//            }
+//        ))
+//    }
+//    .theme(.default)
+//    .preferredColorScheme(.dark)
+//}
 
-#Preview("Light") {
-    NavigationStack {
-        HomeView(params: .init(
-            onAction: { action in
-                print("Action: \(action)")
-            }
-        ))
-    }
-    .theme(.default)
-    .preferredColorScheme(.light)
-}
-
-#Preview("Dark") {
-    NavigationStack {
-        HomeView(params: .init(
-            onAction: { action in
-                print("Action: \(action)")
-            }
-        ))
-    }
-    .theme(.default)
-    .preferredColorScheme(.dark)
+#Preview {
+    LoadingView(theme: .default)
 }
