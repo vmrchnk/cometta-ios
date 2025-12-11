@@ -18,9 +18,34 @@ struct DailyHoroscopeHeaderView: View {
                 .tracking(2)
                 .foregroundStyle(theme.colors.primary.opacity(0.8))
 
-            Text(viewModel.formattedDate)
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(theme.colors.onSurface.opacity(0.6))
+            ZStack {
+                Text(viewModel.formattedDate)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(theme.colors.onSurface.opacity(0.6))
+                    .frame(maxWidth: .infinity)
+                
+                HStack {
+                    Spacer()
+                    Button {
+                        viewModel.showPremiumAlert = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text("See future")
+                                .font(.system(size: 12, weight: .semibold))
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 10, weight: .bold))
+                        }
+                        .foregroundStyle(theme.colors.primary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            Capsule()
+                                .fill(theme.colors.primary.opacity(0.1))
+                        )
+                    }
+                    .padding(.trailing, 16)
+                }
+            }
         }
         .padding(.top, 20)
         .padding(.bottom, 16)
