@@ -19,7 +19,7 @@ struct OnboardingView: View {
         case backward
     }
 
-    let totalPages = 4
+    let totalPages = 5
 
     let pages: [OnboardingPage] = [
         OnboardingPage(

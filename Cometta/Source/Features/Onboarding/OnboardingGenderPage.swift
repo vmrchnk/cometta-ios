@@ -22,14 +22,17 @@ extension OnboardingView {
                             isSelected: viewModel.selectedGender == gender,
                              action: {
                                 withAnimation {
-                                    if gender == .skip {
-                                        viewModel.selectedGender = nil
-                                    } else {
-                                        viewModel.selectedGender = gender
-                                    }
-                                    // Auto-advance
-                                    withAnimation {
-                                        currentPage += 1
+                                    // Update state immediately to show highlight
+                                    viewModel.selectedGender = gender
+                                }
+                                
+                                // Auto-advance after 0.5s delay
+                                Task {
+                                    try? await Task.sleep(nanoseconds: 500_000_000)
+                                    await MainActor.run {
+                                        withAnimation {
+                                            currentPage += 1
+                                        }
                                     }
                                 }
                             }
