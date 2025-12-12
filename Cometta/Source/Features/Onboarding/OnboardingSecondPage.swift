@@ -37,7 +37,7 @@ extension OnboardingView {
                     selectedIndex: $selectedZodiacIndex
                 )
                 .foregroundStyle(theme.colors.onBackground)
-                .frame(height: 120)
+                .frame(height: 150) // Increased from 120 to fit Circle(100) + Text
                 .padding(.bottom, 8)
                 .onChange(of: selectedZodiacIndex) { _, newIndex in
                     updateDate(for: zodiacSigns[newIndex])
@@ -134,41 +134,111 @@ struct OnboardingZodiacSign: Identifiable {
 }
 
 // MARK: - Zodiac Carousel Component
+// MARK: - Zodiac Carousel Component
 struct ZodiacCarousel: View {
     @Environment(\.theme) var theme
     let zodiacSigns: [OnboardingZodiacSign]
     @Binding var selectedIndex: Int
+    
+    // Infinite scroll scaling
+    private let repetitionCount = 50
+    // We want to start somewhere in the middle
+    private var initialVirtualIndex: Int {
+        (repetitionCount / 2) * zodiacSigns.count
+    }
+    
+    @State private var virtualIndex: Int?
+    @State private var selectionTask: Task<Void, Never>?
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 20) {
-                ForEach(Array(zodiacSigns.enumerated()), id: \.element.id) { index, sign in
-                    ZodiacSignView(
-                        sign: sign,
-                        isSelected: index == selectedIndex
-                    )
-                    .id(index)
-                    .containerRelativeFrame(.horizontal, count: 3, spacing: 20)
-                    .scrollTransition(.interactive, axis: .horizontal) { content, phase in
-                        content
-                            .opacity(phase.isIdentity ? 1.0 : 0.5)
-                            .scaleEffect(phase.isIdentity ? 1.0 : 0.8)
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(spacing: 20) {
+                    ForEach(0..<zodiacSigns.count * repetitionCount, id: \.self) { index in
+                        ZodiacSignView(
+                            sign: zodiacSigns[index % zodiacSigns.count],
+                            isSelected: index == virtualIndex
+                        )
+                        .id(index)
+                        .containerRelativeFrame(.horizontal, count: 3, spacing: 20)
+                        .scrollTransition(.interactive, axis: .horizontal) { content, phase in
+                            content
+                                .opacity(phase.isIdentity ? 1.0 : 0.5)
+                                .scaleEffect(phase.isIdentity ? 1.0 : 0.8)
+                        }
+                        .onTapGesture {
+                            // Cancel any pending scroll update to avoid conflict
+                            selectionTask?.cancel() 
+                            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                virtualIndex = index
+                                // Update immediately on tap
+                                let realIndex = index % zodiacSigns.count
+                                if selectedIndex != realIndex {
+                                    selectedIndex = realIndex
+                                }
+                                proxy.scrollTo(index, anchor: .center)
+                            }
+                        }
                     }
-                    .onTapGesture {
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                            selectedIndex = index
+                }
+                .scrollTargetLayout()
+            }
+            .scrollTargetBehavior(.viewAligned)
+            .scrollPosition(id: $virtualIndex)
+            .contentMargins(.horizontal, 40, for: .scrollContent)
+            .onAppear {
+                if virtualIndex == nil {
+                    // Initialize to the middle + current selected index
+                    virtualIndex = initialVirtualIndex + selectedIndex
+                }
+            }
+            // 1. Sync Virtual -> Real (User scrolls)
+            .onChange(of: virtualIndex) { _, newVirtual in
+                guard let v = newVirtual else { return }
+                
+                // Debounce the update to parent to ensure smooth scrolling
+                selectionTask?.cancel()
+                selectionTask = Task {
+                    // Wait for scroll to settle slightly
+                    try? await Task.sleep(nanoseconds: 150_000_000) // 0.15s
+                    if !Task.isCancelled {
+                        let realIndex = v % zodiacSigns.count
+                        if selectedIndex != realIndex {
+                            // Update on main thread
+                            await MainActor.run {
+                                selectedIndex = realIndex
+                            }
                         }
                     }
                 }
             }
-            .scrollTargetLayout()
+            // 2. Sync Real -> Virtual (Date Picker updates)
+            .onChange(of: selectedIndex) { _, newReal in
+                // Only update if we aren't already there (avoids loops)
+                guard let currentVirtual = virtualIndex else { return }
+                let currentReal = currentVirtual % zodiacSigns.count
+                
+                if currentReal != newReal {
+                    // Find closest target index
+                    // We want to move from currentVirtual to something that matches newReal
+                    // target % 12 == newReal
+                    
+                    // Simple approach: calculate delta
+                    var delta = newReal - currentReal
+                    // If jump is too big (wrapping), take shorter path? 
+                    // e.g. from 11 to 0. Delta is -11. Better is +1.
+                    if delta > 6 { delta -= 12 }
+                    if delta < -6 { delta += 12 }
+                    
+                    let targetVirtual = currentVirtual + delta
+                    
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                        virtualIndex = targetVirtual
+                        proxy.scrollTo(targetVirtual, anchor: .center)
+                    }
+                }
+            }
         }
-        .scrollTargetBehavior(.viewAligned)
-        .scrollPosition(id: Binding(
-            get: { selectedIndex },
-            set: { if let val = $0 { selectedIndex = val } }
-        ))
-        .contentMargins(.horizontal, 40, for: .scrollContent)
     }
 }
 
@@ -224,6 +294,8 @@ struct ZodiacSignView: View {
                     theme.colors.onBackground :
                     theme.colors.onSurface.opacity(0.6)
                 )
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
         }
     }
 }
