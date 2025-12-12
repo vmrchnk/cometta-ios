@@ -39,6 +39,9 @@ extension OnboardingView {
                 .foregroundStyle(theme.colors.onBackground)
                 .frame(height: 120)
                 .padding(.bottom, 8)
+                .onChange(of: selectedZodiacIndex) { _, newIndex in
+                    updateDate(for: zodiacSigns[newIndex])
+                }
                 
                 // Description
                 Text("The day you were born is important for the alignment of the planets")
@@ -68,27 +71,51 @@ extension OnboardingView {
             }
         }
 
-        private func updateZodiacSign(for date: Date) {
+        private func updateDate(for sign: OnboardingZodiacSign) {
+            // Avoid loop: if current date is already in the target sign, don't force update.
+            if isDate(selectedDate, matches: sign) { return }
+
+            let calendar = Calendar.current
+            let currentYear = calendar.component(.year, from: selectedDate)
+            
+            var components = DateComponents()
+            components.year = currentYear
+            components.month = sign.startMonth
+            components.day = sign.startDay
+            
+            // Set date to the START of the selected sign
+            if let newDate = calendar.date(from: components) {
+                withAnimation {
+                    selectedDate = newDate
+                }
+            }
+        }
+        
+        private func isDate(_ date: Date, matches sign: OnboardingZodiacSign) -> Bool {
             let calendar = Calendar.current
             let month = calendar.component(.month, from: date)
             let day = calendar.component(.day, from: date)
 
-            // Find matching zodiac sign
-            if let index = zodiacSigns.firstIndex(where: { sign in
-                if sign.startMonth == sign.endMonth {
-                    return month == sign.startMonth && day >= sign.startDay && day <= sign.endDay
-                } else if sign.startMonth > sign.endMonth {
-                    // Handles Capricorn (Dec 22 - Jan 19)
-                    return (month == sign.startMonth && day >= sign.startDay) ||
-                           (month == sign.endMonth && day <= sign.endDay)
-                } else {
-                    return (month == sign.startMonth && day >= sign.startDay) ||
-                           (month == sign.endMonth && day <= sign.endDay) ||
-                           (month > sign.startMonth && month < sign.endMonth)
-                }
-            }) {
-                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                    selectedZodiacIndex = index
+            if sign.startMonth == sign.endMonth {
+                return month == sign.startMonth && day >= sign.startDay && day <= sign.endDay
+            } else if sign.startMonth > sign.endMonth {
+                // Capricorn (Dec -> Jan)
+                return (month == sign.startMonth && day >= sign.startDay) ||
+                       (month == sign.endMonth && day <= sign.endDay)
+            } else {
+                return (month == sign.startMonth && day >= sign.startDay) ||
+                       (month == sign.endMonth && day <= sign.endDay) ||
+                       (month > sign.startMonth && month < sign.endMonth)
+            }
+        }
+
+        private func updateZodiacSign(for date: Date) {
+            // Find matching zodiac sign index
+            if let index = zodiacSigns.firstIndex(where: { isDate(date, matches: $0) }) {
+                if selectedZodiacIndex != index {
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                        selectedZodiacIndex = index
+                    }
                 }
             }
         }
@@ -113,30 +140,35 @@ struct ZodiacCarousel: View {
     @Binding var selectedIndex: Int
 
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 20) {
-                    ForEach(Array(zodiacSigns.enumerated()), id: \.element.id) { index, sign in
-                        ZodiacSignView(
-                            sign: sign,
-                            isSelected: index == selectedIndex
-                        )
-                        .id(index)
-                        .onTapGesture {
-                            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                                selectedIndex = index
-                            }
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 20) {
+                ForEach(Array(zodiacSigns.enumerated()), id: \.element.id) { index, sign in
+                    ZodiacSignView(
+                        sign: sign,
+                        isSelected: index == selectedIndex
+                    )
+                    .id(index)
+                    .containerRelativeFrame(.horizontal, count: 3, spacing: 20)
+                    .scrollTransition(.interactive, axis: .horizontal) { content, phase in
+                        content
+                            .opacity(phase.isIdentity ? 1.0 : 0.5)
+                            .scaleEffect(phase.isIdentity ? 1.0 : 0.8)
+                    }
+                    .onTapGesture {
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                            selectedIndex = index
                         }
                     }
                 }
-                .padding(.horizontal, 40)
             }
-            .onChange(of: selectedIndex) { _, newIndex in
-                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                    proxy.scrollTo(newIndex, anchor: .center)
-                }
-            }
+            .scrollTargetLayout()
         }
+        .scrollTargetBehavior(.viewAligned)
+        .scrollPosition(id: Binding(
+            get: { selectedIndex },
+            set: { if let val = $0 { selectedIndex = val } }
+        ))
+        .contentMargins(.horizontal, 40, for: .scrollContent)
     }
 }
 
@@ -170,19 +202,13 @@ struct ZodiacSignView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(
-                        width: isSelected ? 120 : 100,
-                        height: isSelected ? 120 : 100
-                    )
+                    .frame(width: 100, height: 100) // Fixed size, scale handled by transition
 
                 // Zodiac icon
                 Image(sign.image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(
-                        width: isSelected ? 80 : 60,
-                        height: isSelected ? 80 : 60
-                    )
+                    .frame(width: 60, height: 60)
                     .foregroundStyle(
                         isSelected ?
                         theme.colors.primary :
@@ -199,8 +225,6 @@ struct ZodiacSignView: View {
                     theme.colors.onSurface.opacity(0.6)
                 )
         }
-        .scaleEffect(isSelected ? 1.0 : 0.9)
-        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isSelected)
     }
 }
 
