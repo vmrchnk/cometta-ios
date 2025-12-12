@@ -8,6 +8,21 @@ extension OnboardingView {
         @State private var hours: Int = 12
         @State private var minutes: Int = 0
 
+        // Check for 24-hour format preference
+        private var is24HourFormat: Bool {
+            let dateFormat = DateFormatter.dateFormat(fromTemplate: "j", options: 0, locale: Locale.current)
+            return dateFormat?.contains("a") == false
+        }
+        
+        private var displayHours: Int {
+            if is24HourFormat {
+                return hours
+            } else {
+                let h = hours % 12
+                return h == 0 ? 12 : h
+            }
+        }
+
         var body: some View {
                 VStack(spacing: 24) {
                     // Title
@@ -16,14 +31,12 @@ extension OnboardingView {
                         .foregroundStyle(theme.colors.onBackground)
                         .padding(.top, 20)
 
-
-
                     // Large animated time display
                     VStack(spacing: 16) {
                         HStack(spacing: 8) {
                             // Hours
                             AnimatedNumberView(
-                                value: hours,
+                                value: displayHours,
                                 textColor: theme.colors.primary
                             )
 
@@ -40,11 +53,21 @@ extension OnboardingView {
                             )
                         }
 
-                        // AM/PM indicator (optional)
-                        Text(hours >= 12 ? "PM" : "AM")
-                            .font(.system(size: 24, weight: .semibold))
-                            .foregroundStyle(theme.colors.primaryVariant)
-                            .opacity(0.7)
+                        // AM/PM indicator (only for 12h format)
+                        if !is24HourFormat {
+                            Text(hours >= 12 ? "PM" : "AM")
+                                .font(.system(size: 24, weight: .semibold))
+                                .foregroundStyle(theme.colors.primaryVariant)
+                                .opacity(0.7)
+                        } else {
+                            // Invisible spacer to maintain layout height if needed, 
+                            // or just remove it. Removing it makes sense to center the numbers vertically.
+                            // But usually users want consistent height. Let's keep a placeholder or just nothing.
+                            // Given the existing layout, nothing is fine, but let's check spacing.
+                            // Previous usage had Text inside VStack(spacing: 16).
+                            // If we remove Text, the bottom padding applies directly to numbers.
+                            // Let's add a hidden view to keep position? No, centering is better.
+                        }
                     }
                     .padding(.vertical, 20)
                     .frame(maxWidth: .infinity)
