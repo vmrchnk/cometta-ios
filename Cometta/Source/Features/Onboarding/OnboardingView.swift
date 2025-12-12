@@ -58,7 +58,7 @@ struct OnboardingView: View {
                 // Progress bar
                 OnboardingProgressBar(
                     currentPage: currentPage,
-                    totalPages: totalPages,
+                    totalPages: 5,
                     onBack: {
                         if currentPage > 0 {
                             direction = .backward
@@ -83,6 +83,8 @@ struct OnboardingView: View {
                         case 2:
                             ThirdPage(viewModel: viewModel)
                         case 3:
+                            GenderPage(viewModel: viewModel, currentPage: $currentPage)
+                        case 4:
                             FourthPage(currentPage: $currentPage, viewModel: viewModel)
                         default:
                             EmptyView()
@@ -128,7 +130,7 @@ struct OnboardingView: View {
                 }
                 .buttonStyle(MyButtonStyle(isLoading: viewModel.isLoading))
                 .sensoryFeedback(.increase, trigger: currentPage)
-                .disabled(viewModel.isLoading || (currentPage == 3 && viewModel.selectedLocation == nil))
+                .disabled(viewModel.isLoading || (currentPage == 4 && viewModel.selectedLocation == nil))
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
 

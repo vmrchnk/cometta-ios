@@ -7,6 +7,7 @@ class OnboardingViewModel {
     var birthday: Date = Date()
     var birthdayTime: Date = Date()
     var selectedLocation: Location?
+    var selectedGender: OnboardingGender?
 
     // UI State
     var isLoading: Bool = false
@@ -61,4 +62,11 @@ class OnboardingViewModel {
     var canSubmit: Bool {
         selectedLocation != nil
     }
+}
+
+enum OnboardingGender: String, CaseIterable, Codable {
+    case male = "Male"
+    case female = "Female"
+    case notSpecified = "Prefer not to say"
+    case skip = "Skip"
 }
