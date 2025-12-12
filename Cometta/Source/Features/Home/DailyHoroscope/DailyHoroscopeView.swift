@@ -151,12 +151,16 @@ struct DailyHoroscopeView: View {
         .background(theme.colors.background)
         .alert("Unlock Premium", isPresented: $viewModel.showPremiumAlert) {
             Button("Get Premium", role: .none) {
-                // TODO: Navigate to premium purchase
-                print("🔮 Navigate to premium purchase")
+                viewModel.showComingSoonAlert = true
             }
             Button("Maybe Later", role: .cancel) {}
         } message: {
             Text("Unlock tomorrow's horoscope and get access to exclusive features with Cometta Premium.")
+        }
+        .alert("Cometta Premium", isPresented: $viewModel.showComingSoonAlert) {
+            Button("Got it", role: .cancel) { }
+        } message: {
+            Text("The team is working very hard to develop truly premium content for you.. Everything will be ready soon.")
         }
     }
 }

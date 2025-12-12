@@ -8,6 +8,7 @@ class DailyHoroscopeViewModel {
     var scrollOffset: CGFloat = 0
     var isUserScrolling = false
     var showPremiumAlert = false
+    var showComingSoonAlert = false
     var isTabTap = false
 
     enum LifeArea: String, CaseIterable {

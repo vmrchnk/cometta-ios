@@ -24,6 +24,7 @@ struct DailyHoroscopeHeaderView: View {
                     .foregroundStyle(theme.colors.onSurface.opacity(0.6))
                     .frame(maxWidth: .infinity)
                 
+                /*
                 HStack {
                     Spacer()
                     Button {
@@ -45,6 +46,7 @@ struct DailyHoroscopeHeaderView: View {
                     }
                     .padding(.trailing, 16)
                 }
+                */
             }
         }
         .padding(.top, 20)
