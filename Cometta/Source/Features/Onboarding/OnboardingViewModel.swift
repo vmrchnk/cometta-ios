@@ -68,5 +68,4 @@ enum OnboardingGender: String, CaseIterable, Codable {
     case male = "Male"
     case female = "Female"
     case notSpecified = "Prefer not to say"
-    case skip = "Skip"
 }

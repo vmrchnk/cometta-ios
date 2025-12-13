@@ -15,6 +15,8 @@ extension OnboardingView {
                     .padding(.top, 20)
 
                 // Options List
+                Spacer()
+                
                 VStack(spacing: 16) {
                     ForEach(OnboardingGender.allCases, id: \.self) { gender in
                         GenderOptionRow(
@@ -40,9 +42,7 @@ extension OnboardingView {
                     }
                 }
                 .padding(.horizontal, 24)
-                .padding(.top, 20)
-
-                Spacer()
+                .padding(.bottom, 40)
             }
         }
     }
@@ -70,6 +70,7 @@ extension OnboardingView {
                 }
                 .padding(.vertical, 16)
                 .padding(.horizontal, 20)
+                .frame(maxWidth: .infinity)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
                         .fill(isSelected ? theme.colors.primary : theme.colors.surface)

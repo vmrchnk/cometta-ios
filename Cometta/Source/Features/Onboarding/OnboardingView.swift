@@ -102,7 +102,8 @@ struct OnboardingView: View {
                 // .gesture(DragGesture()) is no longer needed as ZStack doesn't support swipes by default
                 
                 // Continue Button
-                Button {
+                if currentPage != 3 {
+                    Button {
                     if currentPage < totalPages - 1 {
                         direction = .forward
                         withAnimation(.easeInOut(duration: 0.3)) {
@@ -133,6 +134,7 @@ struct OnboardingView: View {
                 .disabled(viewModel.isLoading || (currentPage == 4 && viewModel.selectedLocation == nil))
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
+                }
 
                 // Error message (overlay or below button? keeping below as before but ensures it pushes up if present, or overlay)
                 // To keep button fixed, error message should definitely handle its own space or be overlay. 
