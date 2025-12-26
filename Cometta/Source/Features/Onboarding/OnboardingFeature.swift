@@ -45,8 +45,8 @@ struct OnboardingFeature {
     }
     
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.userClient) var userClient
     
-
 
     var body: some Reducer<State, Action> {
         BindingReducer()
@@ -119,11 +119,9 @@ struct OnboardingFeature {
                             birthdayTime: time,
                             location: location
                         )
-                        // Persist via side-effect if needed, or let parent handle it. 
-                        // Copied logic:
+                        // Persist via dependency
                         await MainActor.run {
-                            UserDefaultsService.shared.userId = response.id
-                            UserDefaultsService.shared.hasSeenOnboarding = true
+                            try? userClient.saveUser(response)
                         }
                         
                         await send(.personalizationResponse(.success(response)))

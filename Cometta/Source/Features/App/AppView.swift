@@ -9,16 +9,15 @@ import SwiftUI
 
 import ComposableArchitecture
 
-struct RootCoordinatorView: View {
+struct AppView: View {
+    
     let store: StoreOf<AppFeature>
-    // Assuming PersonalizationResponse is needed locally or handled by logic?
-    // For now we'll trigger actions.
     
     var body: some View {
         ZStack {
             switch store.currentScreen {
             case .splash:
-                Color.black // Placeholder
+                Color.clear
                     .onAppear {
                         store.send(.onAppear)
                     }

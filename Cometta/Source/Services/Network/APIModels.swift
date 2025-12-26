@@ -91,3 +91,6 @@ struct SearchLocation: Identifiable, Codable, Equatable, Sendable {
                lhs.importance == rhs.importance
     }
 }
+
+// MARK: - User Alias
+typealias User = PersonalizationResponse
