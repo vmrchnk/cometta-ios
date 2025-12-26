@@ -1,33 +1,6 @@
 import Foundation
 
-// MARK: - Location Model
-struct Location: Identifiable, Codable, Equatable {
-    let id: Int
-    let name: String
-    let displayName: String
-    let lat: String
-    let lon: String
-    let type: String
-    let importance: Double
 
-    enum CodingKeys: String, CodingKey {
-        case id = "place_id"
-        case name
-        case displayName = "display_name"
-        case lat
-        case lon
-        case type
-        case importance
-    }
-
-    var latitude: Double? {
-        Double(lat)
-    }
-
-    var longitude: Double? {
-        Double(lon)
-    }
-}
 
 // MARK: - Location Search Service
 @Observable
@@ -35,7 +8,7 @@ class LocationSearchService {
     private let baseURL = "https://nominatim.openstreetmap.org/search"
     private var searchTask: Task<Void, Never>?
 
-    func searchLocations(query: String) async throws -> [Location] {
+    func searchLocations(query: String) async throws -> [SearchLocation] {
         // Cancel previous search task
         searchTask?.cancel()
 
@@ -69,7 +42,7 @@ class LocationSearchService {
         }
 
         // Decode response
-        let locations = try JSONDecoder().decode([Location].self, from: data)
+        let locations = try JSONDecoder().decode([SearchLocation].self, from: data)
         return locations.sorted { $0.importance > $1.importance }
     }
 

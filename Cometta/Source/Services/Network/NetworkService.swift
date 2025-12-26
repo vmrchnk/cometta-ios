@@ -118,7 +118,7 @@ class NetworkService {
     func submitPersonalization(
         birthday: Date,
         birthdayTime: Date,
-        location: Location,
+        location: SearchLocation,
         name: String? = nil,
         email: String? = nil
     ) async throws -> PersonalizationResponse {

@@ -7,9 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D53C13332EBE7B730075C09B /* Features in Frameworks */ = {isa = PBXBuildFile; productRef = D53C13322EBE7B730075C09B /* Features */; };
-		D53C13362EBE7E050075C09B /* Core in Frameworks */ = {isa = PBXBuildFile; productRef = D53C13352EBE7E050075C09B /* Core */; };
 		D53C145D2EC3D5D70075C09B /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = D53C145C2EC3D5D70075C09B /* Lottie */; };
+		D569FB4C2EFF08B6003EEB9D /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = D569FB4B2EFF08B6003EEB9D /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -42,8 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D53C13332EBE7B730075C09B /* Features in Frameworks */,
-				D53C13362EBE7E050075C09B /* Core in Frameworks */,
+				D569FB4C2EFF08B6003EEB9D /* ComposableArchitecture in Frameworks */,
 				D53C145D2EC3D5D70075C09B /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -88,9 +86,8 @@
 			);
 			name = Cometta;
 			packageProductDependencies = (
-				D53C13322EBE7B730075C09B /* Features */,
-				D53C13352EBE7E050075C09B /* Core */,
 				D53C145C2EC3D5D70075C09B /* Lottie */,
+				D569FB4B2EFF08B6003EEB9D /* ComposableArchitecture */,
 			);
 			productName = Cometta;
 			productReference = D5CCDE842EBE770B005BBD65 /* Cometta.app */;
@@ -121,9 +118,8 @@
 			mainGroup = D5CCDE7B2EBE770B005BBD65;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				D53C13312EBE7B730075C09B /* XCLocalSwiftPackageReference "Packages/Features" */,
-				D53C13342EBE7E050075C09B /* XCLocalSwiftPackageReference "Packages/Core" */,
 				D53C145B2EC3D5D70075C09B /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				D569FB4A2EFF08B6003EEB9D /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D5CCDE852EBE770B005BBD65 /* Products */;
@@ -366,17 +362,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		D53C13312EBE7B730075C09B /* XCLocalSwiftPackageReference "Packages/Features" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/Features;
-		};
-		D53C13342EBE7E050075C09B /* XCLocalSwiftPackageReference "Packages/Core" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/Core;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		D53C145B2EC3D5D70075C09B /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -386,21 +371,26 @@
 				minimumVersion = 4.5.2;
 			};
 		};
+		D569FB4A2EFF08B6003EEB9D /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.23.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		D53C13322EBE7B730075C09B /* Features */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Features;
-		};
-		D53C13352EBE7E050075C09B /* Core */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Core;
-		};
 		D53C145C2EC3D5D70075C09B /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D53C145B2EC3D5D70075C09B /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
+		};
+		D569FB4B2EFF08B6003EEB9D /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D569FB4A2EFF08B6003EEB9D /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

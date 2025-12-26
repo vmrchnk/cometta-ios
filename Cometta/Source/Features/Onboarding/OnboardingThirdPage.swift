@@ -1,9 +1,11 @@
 import SwiftUI
 
+import ComposableArchitecture
+
 extension OnboardingView {
     struct ThirdPage: View {
         @Environment(\.theme) var theme
-        @Bindable var viewModel: OnboardingViewModel
+        @Bindable var store: StoreOf<OnboardingFeature>
         @State private var selectedTime = Date()
         @State private var hours: Int = 12
         @State private var minutes: Int = 0
@@ -118,7 +120,7 @@ extension OnboardingView {
                         .labelsHidden()
                         .onChange(of: selectedTime) { _, newTime in
                             updateTime(from: newTime)
-                            viewModel.birthdayTime = newTime
+                            store.send(.binding(.set(\.birthdayTime, newTime)))
                         }
                         .frame(maxWidth: .infinity)
 
@@ -194,23 +196,23 @@ struct AnimatedClockIcon: View {
         }
     }
 }
-
-// MARK: - Previews
-#Preview("Light") {
-    OnboardingView.ThirdPage(viewModel: OnboardingViewModel())
-        .theme(.default)
-        .preferredColorScheme(.light)
-}
-
-#Preview("Dark") {
-    OnboardingView.ThirdPage(viewModel: OnboardingViewModel())
-        .theme(.default)
-        .preferredColorScheme(.dark)
-}
-
-#Preview("Animated Number") {
-    VStack(spacing: 20) {
-        AnimatedNumberView(value: 12, textColor: .blue)
-        AnimatedNumberView(value: 45, textColor: .purple)
-    }
-}
+//
+//// MARK: - Previews
+//#Preview("Light") {
+//    OnboardingView.ThirdPage(viewModel: OnboardingViewModel())
+//        .theme(.default)
+//        .preferredColorScheme(.light)
+//}
+//
+//#Preview("Dark") {
+//    OnboardingView.ThirdPage(viewModel: OnboardingViewModel())
+//        .theme(.default)
+//        .preferredColorScheme(.dark)
+//}
+//
+//#Preview("Animated Number") {
+//    VStack(spacing: 20) {
+//        AnimatedNumberView(value: 12, textColor: .blue)
+//        AnimatedNumberView(value: 45, textColor: .purple)
+//    }
+//}

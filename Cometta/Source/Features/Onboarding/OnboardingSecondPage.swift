@@ -1,9 +1,11 @@
 import SwiftUI
 
+import ComposableArchitecture
+
 extension OnboardingView {
     struct SecondPage: View {
         @Environment(\.theme) var theme
-        @Bindable var viewModel: OnboardingViewModel
+        @Bindable var store: StoreOf<OnboardingFeature>
         @State private var selectedDate = Date()
         @State private var selectedZodiacIndex = 0
 
@@ -60,7 +62,7 @@ extension OnboardingView {
                     .labelsHidden()
                     .onChange(of: selectedDate) { _, newDate in
                         updateZodiacSign(for: newDate)
-                        viewModel.birthday = newDate
+                        store.send(.binding(.set(\.birthday, newDate)))
                     }
                     .frame(maxWidth: .infinity)
 
@@ -300,15 +302,15 @@ struct ZodiacSignView: View {
     }
 }
 
-// MARK: - Previews
-#Preview("Light") {
-    OnboardingView.SecondPage(viewModel: OnboardingViewModel())
-        .theme(.default)
-        .preferredColorScheme(.light)
-}
-
-#Preview("Dark") {
-    OnboardingView.SecondPage(viewModel: OnboardingViewModel())
-        .theme(.default)
-        .preferredColorScheme(.dark)
-}
+//// MARK: - Previews
+//#Preview("Light") {
+//    OnboardingView.SecondPage(viewModel: OnboardingViewModel())
+//        .theme(.default)
+//        .preferredColorScheme(.light)
+//}
+//
+//#Preview("Dark") {
+//    OnboardingView.SecondPage(viewModel: OnboardingViewModel())
+//        .theme(.default)
+//        .preferredColorScheme(.dark)
+//}

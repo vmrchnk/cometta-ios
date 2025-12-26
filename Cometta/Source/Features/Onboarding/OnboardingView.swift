@@ -7,47 +7,20 @@
 
 import SwiftUI
 
+import ComposableArchitecture
+
 struct OnboardingView: View {
     @Environment(\.theme) var theme
+    @Bindable var store: StoreOf<OnboardingFeature>
     let onComplete: (PersonalizationResponse) -> Void
-    @State private var currentPage = 0
-    @State private var direction: NavigationDirection = .forward
-    @State private var viewModel = OnboardingViewModel()
-
-    enum NavigationDirection {
-        case forward
-        case backward
-    }
-
+    
+    // Pages definition removed from here or adapted? 
+    // Usually static data can stay.
+    
     let totalPages = 5
 
-    let pages: [OnboardingPage] = [
-        OnboardingPage(
-            icon: "star.fill",
-            title: "Welcome to Cometta",
-            description: "Your personal guide to the stars"
-        ),
-        OnboardingPage(
-            icon: "moon.stars.fill",
-            title: "Discover Your Sign",
-            description: "Learn about your zodiac personality"
-        ),
-        OnboardingPage(
-            icon: "sparkles",
-            title: "Daily Horoscope",
-            description: "Get personalized daily insights"
-        ),
-        OnboardingPage(
-            icon: "heart.circle.fill",
-            title: "Compatibility",
-            description: "Explore your relationships with others"
-        ),
-        OnboardingPage(
-            icon: "calendar",
-            title: "Date of Birth",
-            description: "The day you were born is important for the alignment of the planets"
-        )
-    ]
+
+
 
     var body: some View {
         ZStack {
@@ -57,95 +30,67 @@ struct OnboardingView: View {
             VStack(spacing: 0) {
                 // Progress bar
                 OnboardingProgressBar(
-                    currentPage: currentPage,
+                    currentPage: store.currentPage,
                     totalPages: 5,
                     onBack: {
-                        if currentPage > 0 {
-                            direction = .backward
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                currentPage -= 1
-                            }
-                        }
+                       store.send(.previousPage)
                     }
                 )
                 .padding(.horizontal, 24)
                 .padding(.top, 16)
-                .opacity(currentPage > 0 ? 1 : 0)
+                .opacity(store.currentPage > 0 ? 1 : 0)
 
                 // Pages
                 ZStack {
                     Group {
-                        switch currentPage {
+                        switch store.currentPage {
                         case 0:
                             FirstPage()
                         case 1:
-                            SecondPage(viewModel: viewModel)
+                            SecondPage(store: store)
                         case 2:
-                            ThirdPage(viewModel: viewModel)
+                            ThirdPage(store: store)
                         case 3:
-                            GenderPage(viewModel: viewModel, currentPage: $currentPage)
+                            GenderPage(store: store)
                         case 4:
-                            FourthPage(currentPage: $currentPage, viewModel: viewModel)
+                            FourthPage(currentPage: $store.currentPage, store: store)
                         default:
                             EmptyView()
                         }
                     }
-                    .id(currentPage)
+                    .id(store.currentPage)
                     .transition(
-                        direction == .forward
+                        store.direction == .forward
                         ? .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
                         : .asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
                     )
                 }
-                .animation(.easeInOut(duration: 0.3), value: currentPage)
+                .animation(.easeInOut(duration: 0.3), value: store.currentPage)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                // .gesture(DragGesture()) is no longer needed as ZStack doesn't support swipes by default
                 
                 // Continue Button
-                if currentPage != 3 {
+                if store.currentPage != 3 { // Gender page has own button usually? Or logic was different.
                     Button {
-                    if currentPage < totalPages - 1 {
-                        direction = .forward
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            currentPage += 1
-                        }
+                    if store.currentPage < totalPages - 1 {
+                        store.send(.nextPage)
                     } else {
-                        // Last page - submit data
-                        Task {
-                            print("🚀 Starting personalization submission")
-                            await viewModel.submitPersonalization()
-                            await MainActor.run {
-                                if let response = viewModel.personalizationResponse {
-                                    print("✅ Got response, calling onComplete with ID: \(response.id)")
-                                    onComplete(response)
-                                } else {
-                                    print("❌ No response received")
-                                }
-                            }
-                        }
+                        store.send(.submitPersonalization)
                     }
                 } label: {
                     Text("Continue")
                         .font(.system(size: 18, weight: .semibold))
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(MyButtonStyle(isLoading: viewModel.isLoading))
-                .sensoryFeedback(.increase, trigger: currentPage)
-                .disabled(viewModel.isLoading || (currentPage == 4 && viewModel.selectedLocation == nil))
+                .buttonStyle(MyButtonStyle(isLoading: store.isLoading))
+                .sensoryFeedback(.increase, trigger: store.currentPage)
+                .disabled(store.isLoading || (store.currentPage == 4 && store.selectedLocation == nil))
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
                 }
-
-                // Error message (overlay or below button? keeping below as before but ensures it pushes up if present, or overlay)
-                // To keep button fixed, error message should definitely handle its own space or be overlay. 
-                // In previous working version it was below. Let's keep it below but use overlay to not shift button? 
-                // Or just keep it below. If error appears, button shifting UP is acceptable usually, but let's try to keep it stable.
-                // Actually, let's put it in an overlay on the button area or just below with fixed height? 
-                // For now, restoring exact previous structure but WITHOUT the extra spacers in the middle.
             }
             
-            // Error message overlay to prevent layout shift
-            if let errorMessage = viewModel.errorMessage {
+            // Error message overlay
+            if let errorMessage = store.errorMessage {
                 VStack {
                     Spacer()
                     Text(errorMessage)
@@ -157,6 +102,11 @@ struct OnboardingView: View {
                         .background(theme.colors.background.opacity(0.9))
                         .transition(.opacity)
                 }
+            }
+        }
+        .onChange(of: store.completionResponse) { _, response in
+            if let response {
+                onComplete(response)
             }
         }
     }
@@ -174,9 +124,9 @@ struct OnboardingProgressBar: View {
             // Back button
             Button(action: onBack) {
                 Image(systemName: "chevron.left")
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundStyle(theme.colors.onBackground)
-                    .frame(width: 32, height: 32)
+                .font(.system(size: 20, weight: .medium))
+                .foregroundStyle(theme.colors.onBackground)
+                .frame(width: 32, height: 32)
             }
             .opacity(currentPage > 0 ? 1 : 0)
             .disabled(currentPage == 0)
@@ -195,80 +145,26 @@ struct OnboardingProgressBar: View {
     }
 }
 
-// MARK: - Page Data Model
-struct OnboardingPage {
-    let icon: String
-    let title: String
-    let description: String
-}
-
-// MARK: - Page View Component
-struct OnboardingPageView: View {
-    @Environment(\.theme) var theme
-    let page: OnboardingPage
-
-    var body: some View {
-        VStack(spacing: 32) {
-            Spacer()
-
-            // Icon with gradient background
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                theme.colors.primaryVariant.opacity(0.3),
-                                theme.colors.primary.opacity(0.2)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 200, height: 200)
-                Image(systemName: page.icon)
-                    .font(.system(size: 80, weight: .light))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [theme.colors.primaryVariant, theme.colors.primary],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-            }
-
-            Spacer()
-
-            VStack(spacing: 16) {
-                Text(page.title)
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(theme.colors.onBackground)
-                    .multilineTextAlignment(.center)
-
-                Text(page.description)
-                    .font(.system(size: 16, weight: .regular))
-                    .foregroundStyle(theme.colors.onSurface.opacity(0.7))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
-                    .lineSpacing(4)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            Spacer()
-        }
-        .padding(.vertical, 40)
-    }
-}
-
 #Preview("Light") {
-    OnboardingView(onComplete: { _ in })
-        .theme(.default)
-        .preferredColorScheme(.light)
+    OnboardingView(
+        store: Store(initialState: OnboardingFeature.State()) {
+            OnboardingFeature()
+        },
+        onComplete: { _ in }
+    )
+    .theme(.default)
+    .preferredColorScheme(.light)
 }
 
 #Preview("Dark") {
-    OnboardingView(onComplete: { _ in })
-        .theme(.default)
-        .preferredColorScheme(.dark)
+    OnboardingView(
+        store: Store(initialState: OnboardingFeature.State()) {
+            OnboardingFeature()
+        },
+        onComplete: { _ in }
+    )
+    .theme(.default)
+    .preferredColorScheme(.dark)
 }
 
 #Preview("Progress Bar") {

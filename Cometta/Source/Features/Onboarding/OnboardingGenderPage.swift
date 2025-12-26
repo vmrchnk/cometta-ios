@@ -1,11 +1,13 @@
 import SwiftUI
 
+import ComposableArchitecture
+
 extension OnboardingView {
     struct GenderPage: View {
         @Environment(\.theme) var theme
-        @Bindable var viewModel: OnboardingViewModel
-        @Binding var currentPage: Int
-
+        @Bindable var store: StoreOf<OnboardingFeature>
+        // derived binding or just use store.currentPage
+        
         var body: some View {
             VStack(spacing: 24) {
                 // Title
@@ -18,14 +20,14 @@ extension OnboardingView {
                 Spacer()
                 
                 VStack(spacing: 16) {
-                    ForEach(OnboardingGender.allCases, id: \.self) { gender in
+                    ForEach(GenderOption.allCases, id: \.self) { gender in
                         GenderOptionRow(
                             title: gender.rawValue,
-                            isSelected: viewModel.selectedGender == gender,
+                            isSelected: store.selectedGender == gender,
                              action: {
                                 withAnimation {
                                     // Update state immediately to show highlight
-                                    viewModel.selectedGender = gender
+                                    store.send(.setGender(gender))
                                 }
                                 
                                 // Auto-advance after 0.5s delay
@@ -33,7 +35,7 @@ extension OnboardingView {
                                     try? await Task.sleep(nanoseconds: 500_000_000)
                                     await MainActor.run {
                                         withAnimation {
-                                            currentPage += 1
+                                            store.send(.nextPage)
                                         }
                                     }
                                 }
@@ -91,8 +93,9 @@ extension OnboardingView {
 
 #Preview {
     OnboardingView.GenderPage(
-        viewModel: OnboardingViewModel(),
-        currentPage: .constant(2)
+        store: Store(initialState: OnboardingFeature.State()) {
+            OnboardingFeature()
+        }
     )
     .theme(.default)
 }

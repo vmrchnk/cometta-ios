@@ -7,65 +7,39 @@
 
 import SwiftUI
 
+import ComposableArchitecture
+
 struct RootCoordinatorView: View {
-    @State private var coordinator = Coordinator<RootScreen>()
-    @State private var personalizationResponse: PersonalizationResponse?
-
-    private let userDefaultsService = UserDefaultsService.shared
-
-    @State private var currentScreen: RootScreen
-
-    init() {
-        let hasSeenOnboarding = UserDefaultsService.shared.hasSeenOnboarding
-        let userId = UserDefaultsService.shared.userId
-        print("🚀 RootCoordinator init - hasSeenOnboarding: \(hasSeenOnboarding), userId: \(userId ?? "nil")")
-        _currentScreen = State(initialValue: hasSeenOnboarding ? .main : .onboarding)
-    }
-
+    let store: StoreOf<AppFeature>
+    // Assuming PersonalizationResponse is needed locally or handled by logic?
+    // For now we'll trigger actions.
+    
     var body: some View {
         ZStack {
-            switch currentScreen {
+            switch store.currentScreen {
             case .splash:
-                Color.black // Placeholder or EmptyView since SplashView was deleted
-            case .onboarding:
-                OnboardingView(onComplete: { response in
-                    Task { @MainActor in
-                        completeOnboarding(with: response)
+                Color.black // Placeholder
+                    .onAppear {
+                        store.send(.onAppear)
                     }
-                })
+            case .onboarding:
+                OnboardingView(
+                    store: Store(initialState: OnboardingFeature.State()) {
+                        OnboardingFeature()
+                    },
+                    onComplete: { response in
+                        store.send(.onboardingCompleted(response))
+                    }
+                )
                 .transition(.opacity)
-            case .main: // Keeping .main case as it's used in init and other functions
-                HomeCoordinatorView() // Assuming .main also leads to HomeCoordinatorView for now
+            case .main:
+                HomeCoordinatorView()
                     .transition(.opacity)
             }
         }
-        .animation(.easeInOut(duration: 0.5), value: currentScreen)
+        .animation(.easeInOut(duration: 0.5), value: store.currentScreen)
         .onReceive(NotificationCenter.default.publisher(for: .logout)) { _ in
-            handleLogout()
-        }
-    }
-
-    // Flow logic
-    private func completeSplash() {
-        currentScreen = userDefaultsService.hasSeenOnboarding ? .main : .onboarding
-    }
-
-    private func completeOnboarding(with response: PersonalizationResponse) {
-        print("🔄 Completing onboarding with user ID: \(response.id)")
-        personalizationResponse = response
-        withAnimation {
-            currentScreen = .main
-        }
-        print("🔄 Current screen changed to: \(currentScreen)")
-    }
-
-    private func handleLogout() {
-        print("🚪 Logging out...")
-        // Reset onboarding state
-        userDefaultsService.hasSeenOnboarding = false
-        // Update screen
-        withAnimation(.easeInOut(duration: 0.5)) {
-            currentScreen = .onboarding
+            store.send(.logout)
         }
     }
 }
