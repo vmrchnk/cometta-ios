@@ -7,7 +7,7 @@ import SwiftUI
 struct OnboardingFeature {
     @ObservableState
     struct State: Equatable {
-        var currentPage = 0
+        var currentStep: OnboardingStep = .intro
         var direction: NavigationDirection = .forward
         
         // User Data
@@ -40,14 +40,13 @@ struct OnboardingFeature {
         case searchResponse(Result<[SearchLocation], NetworkError>)
         
         enum Delegate: Equatable {
-            case completed(PersonalizationResponse)
+            case completed
         }
     }
     
     @Dependency(\.continuousClock) var clock
     @Dependency(\.userClient) var userClient
     
-
     var body: some Reducer<State, Action> {
         BindingReducer()
         
@@ -57,16 +56,18 @@ struct OnboardingFeature {
                 return .none
                 
             case .nextPage:
-                if state.currentPage < 4 { // 5 pages total (0-4)
+                if let nextIndex = state.currentStep.rawValue + 1 as? Int,
+                   let nextStep = OnboardingStep(rawValue: nextIndex) {
                     state.direction = .forward
-                    state.currentPage += 1
+                    state.currentStep = nextStep
                 }
                 return .none
                 
             case .previousPage:
-                if state.currentPage > 0 {
+                if let prevIndex = state.currentStep.rawValue - 1 as? Int,
+                   let prevStep = OnboardingStep(rawValue: prevIndex) {
                     state.direction = .backward
-                    state.currentPage -= 1
+                    state.currentStep = prevStep
                 }
                 return .none
                 
@@ -135,7 +136,7 @@ struct OnboardingFeature {
             case let .personalizationResponse(.success(response)):
                 state.isLoading = false
                 state.completionResponse = response
-                return .send(.delegate(.completed(response)))
+                return .send(.delegate(.completed))
                 
             case let .personalizationResponse(.failure(error)):
                 state.isLoading = false
@@ -153,8 +154,14 @@ struct OnboardingFeature {
     }
 }
 
-// Move Enum here
-// Move Enum here
+enum OnboardingStep: Int, CaseIterable, Equatable {
+    case intro = 0
+    case date
+    case time
+    case gender
+    case location
+}
+
 enum GenderOption: String, CaseIterable, Codable, Equatable {
     case male = "Male"
     case female = "Female"

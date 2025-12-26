@@ -4,9 +4,7 @@ import ComposableArchitecture
 extension OnboardingView {
     struct FourthPage: View {
         @Environment(\.theme) var theme
-        @Binding var currentPage: Int
-        let store: StoreOf<OnboardingFeature>
-        
+        @Bindable var store: StoreOf<OnboardingFeature>
         @FocusState private var isTextFieldFocused: Bool
 
 
@@ -96,12 +94,7 @@ extension OnboardingView {
                             ForEach(store.searchResults) { location in
                                 LocationResultRow(location: location, theme: theme)
                                     .onTapGesture {
-                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                            store.selectedLocation = location
-                                            store.searchText = location.name
-                                            store.searchResults = []
-                                            isTextFieldFocused = false
-                                        }
+                                        store.send(.submitPersonalization)
                                     }
                             }
                         }
@@ -140,11 +133,6 @@ extension OnboardingView {
             }
             .onDisappear {
                 isTextFieldFocused = false
-            }
-            .onChange(of: currentPage) { _, newPage in
-                if newPage != 3 {
-                    isTextFieldFocused = false
-                }
             }
         }
     }
@@ -255,28 +243,4 @@ struct LocationResultRow: View {
                 .stroke(theme.colors.onSurface.opacity(0.1), lineWidth: 1)
         )
     }
-}
-
-// MARK: - Previews
-// MARK: - Previews
-#Preview("Light") {
-    OnboardingView.FourthPage(
-        currentPage: .constant(3),
-        store: Store(initialState: OnboardingFeature.State()) {
-            OnboardingFeature()
-        }
-    )
-    .theme(.default)
-    .preferredColorScheme(.light)
-}
-
-#Preview("Dark") {
-    OnboardingView.FourthPage(
-        currentPage: .constant(3),
-        store: Store(initialState: OnboardingFeature.State()) {
-            OnboardingFeature()
-        }
-    )
-    .theme(.default)
-    .preferredColorScheme(.dark)
 }

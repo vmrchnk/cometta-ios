@@ -22,15 +22,10 @@ struct AppView: View {
                         store.send(.onAppear)
                     }
             case .onboarding:
-                OnboardingView(
-                    store: Store(initialState: OnboardingFeature.State()) {
-                        OnboardingFeature()
-                    },
-                    onComplete: { response in
-                        store.send(.onboardingCompleted(response))
-                    }
-                )
-                .transition(.opacity)
+                if let onboardingStore = store.scope(state: \.onboarding, action: \.onboarding) {
+                    OnboardingView(store: onboardingStore)
+                        .transition(.opacity)
+                }
             case .main:
                 HomeCoordinatorView()
                     .transition(.opacity)
